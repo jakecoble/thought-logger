@@ -66,9 +66,11 @@ async function generateAISummary(logContent: string, maxRetries = 3): Promise<st
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://github.com/raymondarnold/thought-logger",
+          "X-Title": "ThoughtLogger"
         },
         body: JSON.stringify({
-          model: "anthropic/claude-3-5-sonnet",
+          model: "anthropic/claude-3.5-sonnet",
           messages: [
             {
               role: "system",

@@ -16,6 +16,7 @@ declare global {
       listRecentFiles: () => Promise<string[]>;
       openFile: (filePath: string) => void;
       openExternalUrl: (url: string) => void;
+      readFile: (filePath: string) => Promise<string>;
     };
     permissions: {
       requestPermissionsStatus: () => Promise<

@@ -74,7 +74,7 @@ app.on("ready", function () {
   createWindow();
   loadPreferences().then(toggleScheduledScreenshots);
   startLocalServer();
-  startDailySummaryCheck();
+  // startDailySummaryCheck ();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -180,4 +180,14 @@ ipcMain.handle("CHECK_API_KEY", () => {
 
 ipcMain.handle("SAVE_API_KEY", (_event, apiKey: string) => {
   return saveOpenRouterApiKey(apiKey);
+});
+
+ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+    return content;
+  } catch (error) {
+    console.error("Failed to read file:", error);
+    throw error;
+  }
 });

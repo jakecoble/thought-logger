@@ -11,7 +11,8 @@ contextBridge.exposeInMainWorld("userData", {
   getUserDataFolder: () => ipcRenderer.invoke("GET_USER_DATA_FOLDER"),
   listRecentFiles: () => ipcRenderer.invoke("LIST_RECENT_FILES"),
   openFile: (path: string) => ipcRenderer.send("OPEN_FILE", path),
-  openExternalUrl: (url: string) => ipcRenderer.send("OPEN_EXTERNAL_URL", url)
+  openExternalUrl: (url: string) => ipcRenderer.send("OPEN_EXTERNAL_URL", url),
+  readFile: (path: string) => ipcRenderer.invoke("READ_FILE", path),
 });
 
 contextBridge.exposeInMainWorld("preferences", {
