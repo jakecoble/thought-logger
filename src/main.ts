@@ -74,7 +74,7 @@ app.on("ready", function () {
   createWindow();
   loadPreferences().then(toggleScheduledScreenshots);
   startLocalServer();
-  // startDailySummaryCheck ();
+  startDailySummaryCheck ();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
