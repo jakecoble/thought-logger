@@ -246,9 +246,7 @@ app.whenReady().then(async () => {
     try {
         await checkAndGenerateSummaries();
         console.log("Summary generation completed successfully");
-        app.quit();
     } catch (error) {
         console.error("Failed to generate summaries:", error);
-        app.exit(1);
     }
 });
