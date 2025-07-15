@@ -24,8 +24,11 @@ declare global {
       >;
     };
     openRouter: {
-      checkApiKey: () => Promise<{hasKey: boolean, message: string}>;
-      saveApiKey: (apiKey: string) => Promise<{success: boolean, message: string}>;
+      checkApiKey: () => Promise<{ hasKey: boolean; message: string }>;
+      saveApiKey: (
+        apiKey: string,
+      ) => Promise<{ success: boolean; message: string }>;
+      getAvailableModels: () => Promise<string[]>;
     };
   }
 }

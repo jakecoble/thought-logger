@@ -1,9 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  shell,
-} from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
 import path from "path";
 import fs from "node:fs/promises";
 import started from "electron-squirrel-startup";
@@ -13,10 +8,13 @@ import { Preferences, DEFAULT_PREFERENCES } from "./preferences";
 import {
   toggleScheduledScreenshots,
   checkAndGetApiKey,
-  saveOpenRouterApiKey
+  saveOpenRouterApiKey,
 } from "./electron/screenshots";
 import { startLocalServer } from "./electron/server";
-import { startDailySummaryCheck } from "./electron/summarizer";
+import {
+  startDailySummaryCheck,
+  getAvailableModels,
+} from "./electron/summarizer";
 
 const userDataPath = app.getPath("userData");
 
@@ -74,7 +72,7 @@ app.on("ready", function () {
   createWindow();
   loadPreferences().then(toggleScheduledScreenshots);
   startLocalServer();
-  startDailySummaryCheck ();
+  startDailySummaryCheck();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -136,8 +134,8 @@ ipcMain.handle("LIST_RECENT_FILES", async () => {
   const userDataPath = app.getPath("userData");
   const filesDir = path.join(userDataPath, "files");
   try {
-    // For example: read the "files" directory recursively, 
-    // collect file paths, sort them (newest first), 
+    // For example: read the "files" directory recursively,
+    // collect file paths, sort them (newest first),
     // and return the first N results.
     // The specifics of listing "recent" are up to your logic:
     // e.g., you could check subfolders, filter by extension, or sort by stat.mtime.
@@ -150,7 +148,7 @@ ipcMain.handle("LIST_RECENT_FILES", async () => {
     for (const filePath of allEntries) {
       // Skip .DS_Store files
       if (path.basename(filePath) === ".DS_Store") continue;
-      
+
       const stat = await fs.stat(filePath);
       datedPaths.push({ path: filePath, mtime: stat.mtimeMs });
     }
@@ -169,7 +167,7 @@ ipcMain.on("OPEN_FILE", (_event, filePath) => {
 });
 
 ipcMain.on("OPEN_EXTERNAL_URL", (_event, url) => {
-  shell.openExternal(url).catch(err => {
+  shell.openExternal(url).catch((err) => {
     console.error("Failed to open external URL:", err);
   });
 });
@@ -182,9 +180,11 @@ ipcMain.handle("SAVE_API_KEY", (_event, apiKey: string) => {
   return saveOpenRouterApiKey(apiKey);
 });
 
+ipcMain.handle("GET_AVAILABLE_MODELS", () => getAvailableModels());
+
 ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
   try {
-    const content = await fs.readFile(filePath, 'utf-8');
+    const content = await fs.readFile(filePath, "utf-8");
     return content;
   } catch (error) {
     console.error("Failed to read file:", error);
