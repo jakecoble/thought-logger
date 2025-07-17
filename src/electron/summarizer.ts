@@ -82,10 +82,12 @@ export async function getAvailableModels(): Promise<string[]> {
 
 async function generateAISummary(
   logContent: string,
+  prompt: string,
+  model: string,
   maxRetries = 3,
 ): Promise<string> {
   const apiKey = await getOpenRouterApiKey();
-  const { dailySummaryPrompt, summaryModel } = await loadPreferences();
+
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -101,7 +103,7 @@ async function generateAISummary(
             "X-Title": "ThoughtLogger",
           },
           body: JSON.stringify({
-            model: summaryModel,
+            model,
             messages: [
               {
                 role: "system",
@@ -110,7 +112,7 @@ async function generateAISummary(
               },
               {
                 role: "user",
-                content: `${dailySummaryPrompt}\n\n${logContent}`,
+                content: `${prompt}\n\n${logContent}`,
               },
             ],
           }),
@@ -196,7 +198,12 @@ async function generateSummary(fileInfo: LogFileInfo): Promise<void> {
     // Ensure the chronological log exists before trying to read it
     await fs.access(fileInfo.chronologicalPath);
     const logContent = await fs.readFile(fileInfo.chronologicalPath, "utf-8");
-    const summary = await generateAISummary(logContent);
+    const { dailySummaryPrompt, summaryModel } = await loadPreferences();
+    const summary = await generateAISummary(
+      logContent,
+      dailySummaryPrompt,
+      summaryModel,
+    );
     await fs.writeFile(fileInfo.summaryPath, summary);
   } catch (error) {
     console.error(

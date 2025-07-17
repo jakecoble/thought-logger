@@ -10,7 +10,7 @@ const SummarySettings = () => {
     weeklySummaryPrompt: DEFAULT_PREFERENCES.weeklySummaryPrompt,
   });
   const [availableModels, setAvailableModels] = useState<string[]>([
-    "loading...",
+    "loading...", // FIXME
   ]);
 
   useEffect(() => {
