@@ -28,51 +28,70 @@ const SummarySettings = () => {
   }, []);
 
   return (
-    <div>
+    <div style={{ margin: "5px 0 5px 0" }}>
       <h3>Summary Settings</h3>
 
-      <label style={{ display: "block" }}>
+      <label
+        htmlFor="daily-prompt"
+        style={{ display: "block", marginTop: "5px" }}
+      >
         Daily Summary prompt
-        <textarea
-          onChange={(e) => {
-            setSummaryPrefs({
-              ...summaryPrefs,
-              dailySummaryPrompt: e.target.value,
-            });
-            window.preferences.setPreferences({
-              dailySummaryPrompt: e.target.value,
-            });
-          }}
-          value={summaryPrefs.dailySummaryPrompt}
-        />
       </label>
+      <textarea
+        id="daily-prompt"
+        style={{
+          width: "100%",
+          padding: "5px",
+          outline: "2px solid lightblue",
+        }}
+        onChange={(e) => {
+          setSummaryPrefs({
+            ...summaryPrefs,
+            dailySummaryPrompt: e.target.value,
+          });
+          window.preferences.setPreferences({
+            dailySummaryPrompt: e.target.value,
+          });
+        }}
+        value={summaryPrefs.dailySummaryPrompt}
+      />
 
-      <label style={{ display: "block" }}>
+      <label
+        htmlFor="weekly-prompt"
+        style={{ display: "block", marginTop: "5px" }}
+      >
         Weekly Summary prompt
-        <textarea
-          onChange={(e) => {
-            setSummaryPrefs({
-              ...summaryPrefs,
-              weeklySummaryPrompt: e.target.value,
-            });
-            window.preferences.setPreferences({
-              weeklySummaryPrompt: e.target.value,
-            });
-          }}
-          value={summaryPrefs.weeklySummaryPrompt}
-        />
       </label>
 
-      <label style={{ display: "block" }}>
+      <textarea
+        id="weekly-prompt"
+        style={{
+          width: "100%",
+          padding: "5px",
+          outline: "2px solid lightblue",
+        }}
+        onChange={(e) => {
+          setSummaryPrefs({
+            ...summaryPrefs,
+            weeklySummaryPrompt: e.target.value,
+          });
+          window.preferences.setPreferences({
+            weeklySummaryPrompt: e.target.value,
+          });
+        }}
+        value={summaryPrefs.weeklySummaryPrompt}
+      />
+
+      <label htmlFor="summary-model" style={{ display: "block" }}>
         Summary model
-        <Dropdown
-          onChange={(option) =>
-            setSummaryPrefs({ ...summaryPrefs, summaryModel: option.value })
-          }
-          options={availableModels}
-          value={summaryPrefs.summaryModel}
-        />
       </label>
+      <Dropdown
+        onChange={(option) =>
+          setSummaryPrefs({ ...summaryPrefs, summaryModel: option.value })
+        }
+        options={availableModels}
+        value={summaryPrefs.summaryModel}
+      />
     </div>
   );
 };
