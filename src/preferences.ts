@@ -5,7 +5,8 @@ export interface ScreenshotPreferences {
 }
 
 export interface SummaryPreferences {
-  summaryPrompt: string;
+  dailySummaryPrompt: string;
+  weeklySummaryPrompt: string;
   summaryModel: string;
 }
 
@@ -25,7 +26,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
     "WhatsApp",
     "Slack",
   ],
-  summaryPrompt:
+  dailySummaryPrompt:
+    "Please analyze this computer activity log and summarize the major projects and tasks worked on:",
+  weeklySummaryPrompt:
     "Please analyze this computer activity log and summarize the major projects and tasks worked on:",
   summaryModel: "anthropic/claude-3.5-sonnet", // TODO select this from the available models
 };

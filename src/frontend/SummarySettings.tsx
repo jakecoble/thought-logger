@@ -6,7 +6,8 @@ import { SummaryPreferences, DEFAULT_PREFERENCES } from "../preferences";
 const SummarySettings = () => {
   const [summaryPrefs, setSummaryPrefs] = useState<SummaryPreferences>({
     summaryModel: DEFAULT_PREFERENCES.summaryModel,
-    summaryPrompt: DEFAULT_PREFERENCES.summaryPrompt,
+    dailySummaryPrompt: DEFAULT_PREFERENCES.dailySummaryPrompt,
+    weeklySummaryPrompt: DEFAULT_PREFERENCES.weeklySummaryPrompt,
   });
   const [availableModels, setAvailableModels] = useState<string[]>([
     "loading...",
@@ -16,7 +17,8 @@ const SummarySettings = () => {
     window.preferences.getPreferences().then((prefs) => {
       setSummaryPrefs({
         summaryModel: prefs.summaryModel,
-        summaryPrompt: prefs.summaryPrompt,
+        dailySummaryPrompt: prefs.dailySummaryPrompt,
+        weeklySummaryPrompt: prefs.weeklySummaryPrompt,
       });
     });
 
@@ -30,16 +32,34 @@ const SummarySettings = () => {
       <h3>Summary Settings</h3>
 
       <label style={{ display: "block" }}>
-        Summary prompt
-        <input
-          type="text"
+        Daily Summary prompt
+        <textarea
           onChange={(e) => {
-            setSummaryPrefs({ ...summaryPrefs, summaryPrompt: e.target.value });
+            setSummaryPrefs({
+              ...summaryPrefs,
+              dailySummaryPrompt: e.target.value,
+            });
             window.preferences.setPreferences({
-              summaryPrompt: e.target.value,
+              dailySummaryPrompt: e.target.value,
             });
           }}
-          value={summaryPrefs.summaryPrompt}
+          value={summaryPrefs.dailySummaryPrompt}
+        />
+      </label>
+
+      <label style={{ display: "block" }}>
+        Weekly Summary prompt
+        <textarea
+          onChange={(e) => {
+            setSummaryPrefs({
+              ...summaryPrefs,
+              weeklySummaryPrompt: e.target.value,
+            });
+            window.preferences.setPreferences({
+              weeklySummaryPrompt: e.target.value,
+            });
+          }}
+          value={summaryPrefs.weeklySummaryPrompt}
         />
       </label>
 
@@ -47,7 +67,7 @@ const SummarySettings = () => {
         Summary model
         <Dropdown
           onChange={(option) =>
-            setSummaryPrefs({ ...summaryPrefs, summaryModel: option })
+            setSummaryPrefs({ ...summaryPrefs, summaryModel: option.value })
           }
           options={availableModels}
           value={summaryPrefs.summaryModel}

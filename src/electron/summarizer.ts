@@ -85,7 +85,7 @@ async function generateAISummary(
   maxRetries = 3,
 ): Promise<string> {
   const apiKey = await getOpenRouterApiKey();
-  const { summaryPrompt, summaryModel } = await loadPreferences();
+  const { dailySummaryPrompt, summaryModel } = await loadPreferences();
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -110,7 +110,7 @@ async function generateAISummary(
               },
               {
                 role: "user",
-                content: `${summaryPrompt}\n\n${logContent}`,
+                content: `${dailySummaryPrompt}\n\n${logContent}`,
               },
             ],
           }),
