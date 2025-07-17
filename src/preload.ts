@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld("userData", {
   openFile: (path: string) => ipcRenderer.send("OPEN_FILE", path),
   openExternalUrl: (url: string) => ipcRenderer.send("OPEN_EXTERNAL_URL", url),
   readFile: (path: string) => ipcRenderer.invoke("READ_FILE", path),
+  generateAISummary: (path: string) =>
+    ipcRenderer.invoke("GENERATE_AI_SUMMARY", path),
 });
 
 contextBridge.exposeInMainWorld("preferences", {

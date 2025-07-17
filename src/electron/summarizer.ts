@@ -214,6 +214,12 @@ async function generateSummary(fileInfo: LogFileInfo): Promise<void> {
   }
 }
 
+export async function rebuildSummary(filePath: string): Promise<void> {
+  const fileInfo = getLogFileInfo(filePath);
+
+  await generateSummary(fileInfo);
+}
+
 async function processMonthFolder(monthPath: string): Promise<void> {
   const files = await fs.readdir(monthPath);
   const rawLogs = files.filter(

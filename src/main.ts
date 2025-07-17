@@ -14,6 +14,7 @@ import { startLocalServer } from "./electron/server";
 import {
   startDailySummaryCheck,
   getAvailableModels,
+  rebuildSummary,
 } from "./electron/summarizer";
 
 const userDataPath = app.getPath("userData");
@@ -190,4 +191,8 @@ ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
     console.error("Failed to read file:", error);
     throw error;
   }
+});
+
+ipcMain.handle("GENERATE_AI_SUMMARY", async (_event, filePath: string) => {
+  await rebuildSummary(filePath);
 });
