@@ -32,6 +32,38 @@ export async function loadPreferences(): Promise<Preferences> {
   }
 }
 
+export async function recentFiles(): Promise<string[]> {
+  const userDataPath = app.getPath("userData");
+  const filesDir = path.join(userDataPath, "files");
+  try {
+    // For example: read the "files" directory recursively,
+    // collect file paths, sort them (newest first),
+    // and return the first N results.
+    // The specifics of listing "recent" are up to your logic:
+    // e.g., you could check subfolders, filter by extension, or sort by stat.mtime.
+    const allEntries: string[] = [];
+
+    await walkDir(filesDir, allEntries);
+
+    // Sort by modification time descending
+    const datedPaths: { path: string; mtime: number }[] = [];
+    for (const filePath of allEntries) {
+      // Skip .DS_Store files
+      if (path.basename(filePath) === ".DS_Store") continue;
+
+      const stat = await fs.stat(filePath);
+      datedPaths.push({ path: filePath, mtime: stat.mtimeMs });
+    }
+    datedPaths.sort((a, b) => b.mtime - a.mtime);
+
+    // Return a limited list, e.g. 20 items
+    return datedPaths.slice(0, 20).map((x) => x.path);
+  } catch (error) {
+    console.error("Failed to list recent files:", error);
+    return [];
+  }
+}
+
 async function savePreferences(
   prefs: Partial<Preferences>,
 ): Promise<Preferences> {
@@ -131,37 +163,7 @@ async function walkDir(dir: string, allEntries: string[]) {
   }
 }
 
-ipcMain.handle("LIST_RECENT_FILES", async () => {
-  const userDataPath = app.getPath("userData");
-  const filesDir = path.join(userDataPath, "files");
-  try {
-    // For example: read the "files" directory recursively,
-    // collect file paths, sort them (newest first),
-    // and return the first N results.
-    // The specifics of listing "recent" are up to your logic:
-    // e.g., you could check subfolders, filter by extension, or sort by stat.mtime.
-    const allEntries: string[] = [];
-
-    await walkDir(filesDir, allEntries);
-
-    // Sort by modification time descending
-    const datedPaths: { path: string; mtime: number }[] = [];
-    for (const filePath of allEntries) {
-      // Skip .DS_Store files
-      if (path.basename(filePath) === ".DS_Store") continue;
-
-      const stat = await fs.stat(filePath);
-      datedPaths.push({ path: filePath, mtime: stat.mtimeMs });
-    }
-    datedPaths.sort((a, b) => b.mtime - a.mtime);
-
-    // Return a limited list, e.g. 20 items
-    return datedPaths.slice(0, 20).map((x) => x.path);
-  } catch (error) {
-    console.error("Failed to list recent files:", error);
-    return [];
-  }
-});
+ipcMain.handle("LIST_RECENT_FILES", async () => recentFiles());
 
 ipcMain.on("OPEN_FILE", (_event, filePath) => {
   shell.openPath(filePath);

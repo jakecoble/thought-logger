@@ -2,7 +2,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { app } from "electron";
 import { rebuildLogByApp, rebuildChronologicalLog } from "../keylogger";
-import { loadPreferences } from "../main";
+import { loadPreferences, recentFiles } from "../main";
+import {
+  startOfWeek,
+  endOfWeek,
+  subWeeks,
+  isWithinInterval,
+  setDefaultOptions,
+  parse,
+  format,
+} from "date-fns";
+setDefaultOptions({ weekStartsOn: 1 });
 
 const userDataPath = app.getPath("userData");
 
@@ -54,6 +64,7 @@ interface LogFileInfo {
   chronologicalPath: string;
   byAppPath: string;
   summaryPath: string;
+  date: Date;
 }
 
 async function getOpenRouterApiKey(): Promise<string> {
@@ -144,11 +155,14 @@ function getLogFileInfo(logPath: string): LogFileInfo {
     throw new Error(`Invalid log file path: ${logPath}. Must end with .log`);
   }
 
+  const date = parse(path.basename(logPath, ".log"), "yyyy-MM-dd", new Date());
+
   return {
     rawPath: logPath,
     chronologicalPath: logPath.replace(".log", ".processed.chronological.log"),
     byAppPath: logPath.replace(".log", ".processed.by-app.log"),
     summaryPath: logPath.replace(".log", ".aisummary.log"),
+    date,
   };
 }
 
@@ -220,6 +234,67 @@ export async function rebuildSummary(filePath: string): Promise<void> {
   await generateSummary(fileInfo);
 }
 
+// Weekly Summaries
+
+async function getWeekKeyLogs(date: Date): Promise<string[]> {
+  const weekStart = startOfWeek(date);
+  const weekEnd = endOfWeek(date);
+
+  const files = await recentFiles();
+  const fileInfo = files
+    .filter(
+      (f) =>
+        f.endsWith(".log") &&
+        !f.includes("processed.") &&
+        !f.includes("aisummary."),
+    )
+    .map(getLogFileInfo)
+    .filter((info) =>
+      isWithinInterval(info.date, { start: weekStart, end: weekEnd }),
+    );
+
+  return fileInfo.map((info) => info.rawPath);
+}
+
+function weeklySummaryPath(date: Date): string {
+  const keylogsPath = path.join(userDataPath, "files", "keylogs");
+  const weekString = format(date, "yyyy-'W'ww");
+  return path.join(keylogsPath, `${weekString}.aisummary.log`);
+}
+
+async function needsWeekSummary(date: Date): Promise<boolean> {
+  const files = await getWeekKeyLogs(date);
+  const weeklyPath = weeklySummaryPath(date);
+
+  if (files.length === 0) {
+    return false;
+  }
+
+  try {
+    fs.access(weeklyPath);
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+async function generateWeeklySummary(date: Date): Promise<void> {
+  const logFiles = await getWeekKeyLogs(date);
+  const fileContents = await Promise.all(
+    logFiles.map((file) => fs.readFile(file)),
+  );
+  const logContents = fileContents.join("\n");
+  const { weeklySummaryPrompt, summaryModel } = await loadPreferences();
+  const summary = await generateAISummary(
+    logContents,
+    weeklySummaryPrompt,
+    summaryModel,
+  );
+  const summaryPath = weeklySummaryPath(date);
+
+  fs.writeFile(summaryPath, summary);
+}
+
 async function processMonthFolder(monthPath: string): Promise<void> {
   const files = await fs.readdir(monthPath);
   const rawLogs = files.filter(
@@ -278,6 +353,13 @@ async function checkAndGenerateSummaries() {
         console.error(`Failed to process month folder ${monthFolder}:`, error);
         continue; // Continue with next month even if this one fails
       }
+    }
+
+    const today = new Date();
+    const lastWeek = subWeeks(today, 1);
+    if (needsWeekSummary(lastWeek)) {
+      console.log("Generating a summary for last week...");
+      generateWeeklySummary(lastWeek);
     }
   } catch (error) {
     console.error("Error checking and generating summaries:", error);
