@@ -89,6 +89,9 @@ export function FileInfo() {
   const getFormattedFile = (file: string) => {
     const content = fileContents[file];
     if (!content) return "Loading...";
+    if (!content.match(/1\. /)) {
+      return content;
+    }
     const newContent = "1. " + content.split("1.")[1];
     const paragraphs = newContent.split(/\n\s*\n/);
     // Check if the last paragraph starts with a number
