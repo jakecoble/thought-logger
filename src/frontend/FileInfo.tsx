@@ -241,22 +241,8 @@ export function FileInfo() {
                         year: "numeric",
                       })}
                     </span>
-                    {files.find(
-                      (f) => !isAiSummary(f) && !f.includes(".processed."),
-                    ) && (
-                      <button
-                        className="ml-2 px-2 py-0.5 text-xs text-blue-800 font-normal"
-                        onClick={() =>
-                          window.userData.openExternalUrl(
-                            `file://${files.find((f) => !isAiSummary(f) && !f.includes(".processed."))}`,
-                          )
-                        }
-                      >
-                        raw
-                      </button>
-                    )}
                     <button
-                      className="ml-2 px-2 py-0.5 text-xs text-blue-800 font-normal"
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5 text-xs"
                       onClick={() => {
                         const rawFile = files.find(
                           (f) => !isAiSummary(f) && !f.includes(".processed."),
@@ -266,6 +252,20 @@ export function FileInfo() {
                     >
                       regenerate summary
                     </button>
+                    {files.find(
+                      (f) => !isAiSummary(f) && !f.includes(".processed."),
+                    ) && (
+                      <button
+                        className="ml-2 px-2 py-2 text-xs text-blue-800 font-normal"
+                        onClick={() =>
+                          window.userData.openExternalUrl(
+                            `file://${files.find((f) => !isAiSummary(f) && !f.includes(".processed."))}`,
+                          )
+                        }
+                      >
+                        raw
+                      </button>
+                    )}
                     {files
                       .filter(
                         (f) => !isAiSummary(f) && f.includes(".processed."),
