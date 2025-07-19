@@ -363,7 +363,7 @@ async function checkAndGenerateSummaries() {
     const lastWeek = subWeeks(today, 1);
     if (needsWeekSummary(lastWeek)) {
       console.log("Generating a summary for last week...");
-      generateWeeklySummary(lastWeek);
+      await generateWeeklySummary(lastWeek);
     }
   } catch (error) {
     console.error("Error checking and generating summaries:", error);
