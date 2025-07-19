@@ -6,16 +6,17 @@ contextBridge.exposeInMainWorld("permissions", {
     ipcRenderer.invoke("REQUEST_PERMISSIONS_STATUS"),
 });
 
-contextBridge.exposeInMainWorld("userData", {
+const userData: UserData = {
   openUserDataFolder: () => ipcRenderer.send("OPEN_USER_DATA_FOLDER"),
   getUserDataFolder: () => ipcRenderer.invoke("GET_USER_DATA_FOLDER"),
-  listRecentFiles: () => ipcRenderer.invoke("LIST_RECENT_FILES"),
   openFile: (path: string) => ipcRenderer.send("OPEN_FILE", path),
   openExternalUrl: (url: string) => ipcRenderer.send("OPEN_EXTERNAL_URL", url),
   readFile: (path: string) => ipcRenderer.invoke("READ_FILE", path),
   generateAISummary: (path: string) =>
     ipcRenderer.invoke("GENERATE_AI_SUMMARY", path),
-});
+  getRecentLogs: () => ipcRenderer.invoke("GET_RECENT_LOGS"),
+};
+contextBridge.exposeInMainWorld("userData", userData);
 
 contextBridge.exposeInMainWorld("preferences", {
   getPreferences: () => ipcRenderer.invoke("GET_PREFERENCES"),

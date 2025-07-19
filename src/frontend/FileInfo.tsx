@@ -1,93 +1,38 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { groupBy } from "lodash";
+import { getWeek, getMonth, format } from "date-fns";
+
+import DailySummary from "./DailySummary";
+import { SerializedLog, SerializedScopeTypes } from "../types/files.d";
 
 function openFolder() {
   window.userData.openUserDataFolder();
 }
 
-const isAiSummary = (file: string) => file.includes("aisummary");
-
-const getFileName = (file: string) => {
-  const parts = file.split("/").slice(-1)[0].split(".");
-  if (isAiSummary(file)) return "ai summary";
-  return parts.slice(1, 3).join(".");
-};
-
-function getMonth(dateStr: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleString("en-US", { month: "long", year: "numeric" });
-}
-
-function getWeek(dateStr: string) {
-  const d = new Date(dateStr);
-  // Get Monday of the week
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return `${monday.getFullYear()}-W${String(getWeekNumber(monday)).padStart(2, "0")}`;
-}
-
-function getWeekNumber(d: Date) {
-  // Copy date so don't modify original
-  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  // Set to nearest Thursday: current date + 4 - current day number
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  // Get first day of year
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  // Calculate full weeks to nearest Thursday
-  const weekNo = Math.ceil(
-    (((d as any) - (yearStart as any)) / 86400000 + 1) / 7,
-  );
-  return weekNo;
-}
-
 export function FileInfo() {
   const [dataFolder, setDataFolder] = useState("(loading)");
-  const [filesByDate, setFilesByDate] = useState<Record<string, string[]>>({});
-  const [fileContents, setFileContents] = useState<Record<string, string>>({});
+  const [serializedLogs, setSerializedLogs] = useState<SerializedLog[]>([]);
 
   useEffect(() => {
     window.userData.getUserDataFolder().then(setDataFolder);
-    window.userData.listRecentFiles().then((files) => {
-      // Filter files from the past year
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      const filteredFiles = files.filter((file) => {
-        const dateStr = file.split("/").slice(-1)[0].split(".")[0];
-        const fileDate = new Date(dateStr);
-        return !isNaN(fileDate.getTime()) && fileDate >= oneYearAgo;
-      });
-      setFilesByDate(
-        groupBy(
-          filteredFiles,
-          (file) => file.split("/").slice(-1)[0].split(".")[0],
-        ),
-      );
-    });
+    window.userData.getRecentLogs().then(setSerializedLogs);
   }, []);
 
-  useEffect(() => {
-    const allFiles = Object.values(filesByDate).flat();
-    Promise.all(
-      allFiles.map((file) =>
-        file in fileContents
-          ? Promise.resolve()
-          : window.userData
-              .readFile(file)
-              .then((content) =>
-                setFileContents((prev) => ({ ...prev, [file]: content })),
-              )
-              .catch(() =>
-                setFileContents((prev) => ({
-                  ...prev,
-                  [file]: "(error loading file)",
-                })),
-              ),
-      ),
-    );
-  }, [filesByDate]);
+  const tocByMonth: Record<string, Record<string, string[]>> = {};
 
-  const getFormattedFile = (file: string) => {
-    const content = fileContents[file];
+  useEffect(() => {
+    serializedLogs
+      .filter(({ scope }) => scope === SerializedScopeTypes.Day)
+      .forEach(({ date }) => {
+        const month = getMonth(date);
+        const week = getWeek(date);
+        if (!tocByMonth[month]) tocByMonth[month] = {};
+        if (!tocByMonth[month][week]) tocByMonth[month][week] = [];
+        tocByMonth[month][week].push(format(date, "yyyy-MM-dd"));
+      });
+  }, [serializedLogs]);
+
+  const getFormattedFile = (file: SerializedLog) => {
+    const content = file.summaryContents;
     if (!content) return "Loading...";
     if (!content.match(/1\. /)) {
       return content;
@@ -101,16 +46,6 @@ export function FileInfo() {
     }
     return paragraphs.join("\n\n");
   };
-
-  // Group dates by month and week
-  const tocByMonth: Record<string, Record<string, string[]>> = {};
-  Object.keys(filesByDate).forEach((dateStr) => {
-    const month = getMonth(dateStr);
-    const week = getWeek(dateStr);
-    if (!tocByMonth[month]) tocByMonth[month] = {};
-    if (!tocByMonth[month][week]) tocByMonth[month][week] = [];
-    tocByMonth[month][week].push(dateStr);
-  });
 
   return (
     <div>
@@ -223,120 +158,13 @@ export function FileInfo() {
           ))}
         </div>
         <div className="min-w-[300px] flex-1">
-          {(() => {
-            // Flatten and sort all dates descending
-            const allDates = Object.keys(filesByDate).sort((a, b) =>
-              b.localeCompare(a),
-            );
-            const result: React.ReactNode[] = [];
-            allDates.forEach((date, idx) => {
-              const files = filesByDate[date];
-              const week = getWeek(date);
-              // Render the day as before
-              result.push(
-                <div key={date} className="mb-2.5" id={`day-${date}`}>
-                  <div className="mb-1 font-bold flex items-center">
-                    <span className="mr-auto">
-                      {new Date(date).toLocaleDateString("en-US", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                    <button
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5 text-xs"
-                      onClick={() => {
-                        const rawFile = files.find(
-                          (f) => !isAiSummary(f) && !f.includes(".processed."),
-                        );
-                        window.userData.generateAISummary(rawFile);
-                      }}
-                    >
-                      regenerate summary
-                    </button>
-                    {files.find(
-                      (f) => !isAiSummary(f) && !f.includes(".processed."),
-                    ) && (
-                      <button
-                        className="ml-2 px-2 py-2 text-xs text-blue-800 font-normal"
-                        onClick={() =>
-                          window.userData.openExternalUrl(
-                            `file://${files.find((f) => !isAiSummary(f) && !f.includes(".processed."))}`,
-                          )
-                        }
-                      >
-                        raw
-                      </button>
-                    )}
-                    {files
-                      .filter(
-                        (f) => !isAiSummary(f) && f.includes(".processed."),
-                      )
-                      .map((f) => (
-                        <button
-                          key={f}
-                          className="ml-2 px-2 py-0.5 text-xs text-green-800 font-normal"
-                          onClick={() =>
-                            window.userData.openExternalUrl(`file://${f}`)
-                          }
-                        >
-                          {f.split(".").slice(1, 3).join(".")}
-                        </button>
-                      ))}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    {files
-                      .sort((a, b) =>
-                        isAiSummary(a) === isAiSummary(b)
-                          ? a.localeCompare(b)
-                          : isAiSummary(a)
-                            ? -1
-                            : 1,
-                      )
-                      .map((file) => {
-                        if (isAiSummary(file)) {
-                          return (
-                            <div
-                              key={file}
-                              className="whitespace-pre-wrap bg-gray-100 p-3 rounded text-sm"
-                            >
-                              {getFormattedFile(file)}
-                            </div>
-                          );
-                        }
-                      })}
-                  </div>
-                </div>,
-              );
-              // If this is the last day of the week (Sunday or last date or week changes), render the week summary
-              const isSunday = new Date(date).getDay() === 0;
-              const isLast = idx === allDates.length - 1;
-              const nextWeek = !isLast ? getWeek(allDates[idx + 1]) : null;
-              if (isSunday || isLast || nextWeek !== week) {
-                result.push(
-                  <div
-                    key={`week-title-${week}`}
-                    id={`week-${week}`}
-                    className="font-semibold text-3xl text-base mt-4 mb-2 mt-10"
-                  >
-                    Week of{" "}
-                    {(() => {
-                      // Find the Monday of this week
-                      const d = new Date(date);
-                      d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-                      return d.toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      });
-                    })()}
-                  </div>,
-                );
-              }
-            });
-            return result;
-          })()}
+          {serializedLogs.map((log) => {
+            if (log.scope === SerializedScopeTypes.Day) {
+              return <DailySummary log={log} />;
+            } else if (log.scope === SerializedScopeTypes.Week) {
+              return <div>weekly</div>;
+            }
+          })}
         </div>
       </div>
     </div>

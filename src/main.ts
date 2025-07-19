@@ -16,6 +16,7 @@ import {
   getAvailableModels,
   rebuildSummary,
 } from "./electron/summarizer";
+import { SerializedLog, SerializedScopeTypes } from "./types/files.d";
 
 const userDataPath = app.getPath("userData");
 
@@ -163,8 +164,6 @@ async function walkDir(dir: string, allEntries: string[]) {
   }
 }
 
-ipcMain.handle("LIST_RECENT_FILES", async () => recentFiles());
-
 ipcMain.on("OPEN_FILE", (_event, filePath) => {
   shell.openPath(filePath);
 });
@@ -198,3 +197,18 @@ ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
 ipcMain.handle("GENERATE_AI_SUMMARY", async (_event, filePath: string) => {
   await rebuildSummary(filePath);
 });
+
+async function getRecentLogs(): Promise<SerializedLog[]> {
+  const files = await recentFiles();
+  return files.map((file) => {
+    return {
+      appPath: "/foo/bar.log",
+      chronoPath: "/baz/bar.log",
+      date: new Date(),
+      rawPath: "/bar/giz.log",
+      scope: SerializedScopeTypes.Day,
+      summaryContents: "cool",
+    };
+  });
+}
+ipcMain.handle("GET_RECENT_LOGS", getRecentLogs);

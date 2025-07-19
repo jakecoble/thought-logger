@@ -34,8 +34,8 @@ export function App() {
 
   useEffect(() => {
     // Check if there are any log files
-    window.userData.listRecentFiles().then((files) => {
-      if (files.length > 0) {
+    window.userData.getRecentLogs().then((logs) => {
+      if (logs.length > 0) {
         setHasLogs(true);
         setActiveTab("logs");
       }
