@@ -160,7 +160,7 @@ export function FileInfo() {
           {serializedLogs
             .sort((a, b) => compareDesc(a.date, b.date))
             .map((log) => (
-              <Summary log={log} />
+              <Summary key={log.date.toISOString()} log={log} />
             ))}
         </div>
       </div>
