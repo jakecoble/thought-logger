@@ -3,6 +3,7 @@ export enum SerializedScopeTypes {
   Week,
 }
 
+// FIXME merge with the similar LogFileInfo
 export interface SerializedLog {
   summaryContents?: string;
   rawPath?: string;
