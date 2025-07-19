@@ -13,7 +13,7 @@ declare global {
     openFile: (filePath: string) => void;
     openExternalUrl: (url: string) => void;
     readFile: (filePath: string) => Promise<string>;
-    generateAISummary: (filePath: string) => Promise<string>;
+    generateAISummary: (log: SerializedLog) => Promise<string>;
   }
 
   interface Window {

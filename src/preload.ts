@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { Preferences } from "./preferences";
+import { SerializedLog } from "./types/files";
 
 contextBridge.exposeInMainWorld("permissions", {
   requestPermissionsStatus: () =>
@@ -12,8 +13,8 @@ const userData: UserData = {
   openFile: (path: string) => ipcRenderer.send("OPEN_FILE", path),
   openExternalUrl: (url: string) => ipcRenderer.send("OPEN_EXTERNAL_URL", url),
   readFile: (path: string) => ipcRenderer.invoke("READ_FILE", path),
-  generateAISummary: (path: string) =>
-    ipcRenderer.invoke("GENERATE_AI_SUMMARY", path),
+  generateAISummary: (log: SerializedLog) =>
+    ipcRenderer.invoke("GENERATE_AI_SUMMARY", log),
   getRecentLogs: () => ipcRenderer.invoke("GET_RECENT_LOGS"),
 };
 contextBridge.exposeInMainWorld("userData", userData);

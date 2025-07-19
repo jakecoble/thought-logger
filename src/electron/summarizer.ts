@@ -12,6 +12,7 @@ import {
   parse,
   format,
 } from "date-fns";
+import { SerializedLog, SerializedScopeTypes } from "../types/files.d";
 setDefaultOptions({ weekStartsOn: 1 });
 
 const userDataPath = app.getPath("userData");
@@ -228,10 +229,13 @@ async function generateSummary(fileInfo: LogFileInfo): Promise<void> {
   }
 }
 
-export async function rebuildSummary(filePath: string): Promise<void> {
-  const fileInfo = getLogFileInfo(filePath);
-
-  await generateSummary(fileInfo);
+export async function rebuildSummary(log: SerializedLog): Promise<void> {
+  if (log.scope === SerializedScopeTypes.Week) {
+    return generateWeeklySummary(log.date);
+  } else {
+    const fileInfo = getLogFileInfo(log.rawPath);
+    return generateSummary(fileInfo);
+  }
 }
 
 // Weekly Summaries

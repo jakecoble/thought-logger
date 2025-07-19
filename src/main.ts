@@ -196,8 +196,8 @@ ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
   }
 });
 
-ipcMain.handle("GENERATE_AI_SUMMARY", async (_event, filePath: string) => {
-  await rebuildSummary(filePath);
+ipcMain.handle("GENERATE_AI_SUMMARY", async (_event, log: SerializedLog) => {
+  await rebuildSummary(log);
 });
 
 async function getRecentLogs(): Promise<SerializedLog[]> {

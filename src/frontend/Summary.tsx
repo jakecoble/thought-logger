@@ -18,14 +18,12 @@ export default function Summary({ log }: { log: SerializedLog }): ReactElement {
             year: "numeric",
           })}
         </span>
-        {log.rawPath && (
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5 text-xs"
-            onClick={() => window.userData.generateAISummary(log.rawPath)}
-          >
-            regenerate summary
-          </button>
-        )}
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5 text-xs"
+          onClick={() => window.userData.generateAISummary(log)}
+        >
+          regenerate summary
+        </button>
         {log.rawPath && (
           <button
             className="ml-2 px-2 py-2 text-xs text-blue-800 font-normal"
