@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { getWeek, getMonth, format, compareDesc } from "date-fns";
+import { format, compareDesc } from "date-fns";
 
 import Summary from "./Summary";
 import { SerializedLog, SerializedScopeTypes } from "../types/files.d";
@@ -22,29 +22,12 @@ export function FileInfo() {
   serializedLogs
     .filter(({ scope }) => scope === SerializedScopeTypes.Day)
     .forEach(({ date }) => {
-      console.log(date);
       const month = format(date, "yyyy-MM");
       const week = format(date, "yyyy-'W'ww");
       if (!tocByMonth[month]) tocByMonth[month] = {};
       if (!tocByMonth[month][week]) tocByMonth[month][week] = [];
       tocByMonth[month][week].push(format(date, "yyyy-MM-dd"));
     });
-
-  const getFormattedFile = (file: SerializedLog) => {
-    const content = file.summaryContents;
-    if (!content) return "Loading...";
-    if (!content.match(/1\. /)) {
-      return content;
-    }
-    const newContent = "1. " + content.split("1.")[1];
-    const paragraphs = newContent.split(/\n\s*\n/);
-    // Check if the last paragraph starts with a number
-    const last = paragraphs[paragraphs.length - 1];
-    if (last && !/^\d/.test(last.trim())) {
-      paragraphs.pop();
-    }
-    return paragraphs.join("\n\n");
-  };
 
   return (
     <div>
