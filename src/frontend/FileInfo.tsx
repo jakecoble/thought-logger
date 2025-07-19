@@ -17,19 +17,18 @@ export function FileInfo() {
     window.userData.getRecentLogs().then(setSerializedLogs);
   }, []);
 
+  // FIXME Probably doesn't need to happen every render
   const tocByMonth: Record<string, Record<string, string[]>> = {};
-
-  useEffect(() => {
-    serializedLogs
-      .filter(({ scope }) => scope === SerializedScopeTypes.Day)
-      .forEach(({ date }) => {
-        const month = getMonth(date);
-        const week = getWeek(date);
-        if (!tocByMonth[month]) tocByMonth[month] = {};
-        if (!tocByMonth[month][week]) tocByMonth[month][week] = [];
-        tocByMonth[month][week].push(format(date, "yyyy-MM-dd"));
-      });
-  }, [serializedLogs]);
+  serializedLogs
+    .filter(({ scope }) => scope === SerializedScopeTypes.Day)
+    .forEach(({ date }) => {
+      console.log(date);
+      const month = format(date, "yyyy-MM");
+      const week = format(date, "yyyy-'W'ww");
+      if (!tocByMonth[month]) tocByMonth[month] = {};
+      if (!tocByMonth[month][week]) tocByMonth[month][week] = [];
+      tocByMonth[month][week].push(format(date, "yyyy-MM-dd"));
+    });
 
   const getFormattedFile = (file: SerializedLog) => {
     const content = file.summaryContents;
