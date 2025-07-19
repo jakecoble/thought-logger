@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { getWeek, getMonth, format } from "date-fns";
+import { getWeek, getMonth, format, compareDesc } from "date-fns";
 
-import DailySummary from "./DailySummary";
+import Summary from "./Summary";
 import { SerializedLog, SerializedScopeTypes } from "../types/files.d";
 
 function openFolder() {
@@ -158,13 +158,11 @@ export function FileInfo() {
           ))}
         </div>
         <div className="min-w-[300px] flex-1">
-          {serializedLogs.map((log) => {
-            if (log.scope === SerializedScopeTypes.Day) {
-              return <DailySummary log={log} />;
-            } else if (log.scope === SerializedScopeTypes.Week) {
-              return <div>weekly</div>;
-            }
-          })}
+          {serializedLogs
+            .sort((a, b) => compareDesc(a.date, b.date))
+            .map((log) => (
+              <Summary log={log} />
+            ))}
         </div>
       </div>
     </div>
