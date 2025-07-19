@@ -17,6 +17,8 @@ import {
   rebuildSummary,
 } from "./electron/summarizer";
 import { SerializedLog, SerializedScopeTypes } from "./types/files.d";
+import { parse, setDay, setDefaultOptions } from "date-fns";
+setDefaultOptions({ weekStartsOn: 1 });
 
 const userDataPath = app.getPath("userData");
 
@@ -200,15 +202,34 @@ ipcMain.handle("GENERATE_AI_SUMMARY", async (_event, filePath: string) => {
 
 async function getRecentLogs(): Promise<SerializedLog[]> {
   const files = await recentFiles();
-  return files.map((file) => {
-    return {
-      appPath: "/foo/bar.log",
-      chronoPath: "/baz/bar.log",
-      date: new Date(),
-      rawPath: "/bar/giz.log",
-      scope: SerializedScopeTypes.Day,
-      summaryContents: "cool",
-    };
-  });
+  const logs: Record<string, SerializedLog> = {};
+
+  for (let file of files) {
+    let scope = SerializedScopeTypes.Day;
+    const fileName = path.basename(file);
+    const result = fileName.match(/[^.]+/);
+    const dateString = result[0];
+    let date = parse(dateString, "yyyy-MM-dd", new Date());
+    if (isNaN(date.getTime())) {
+      date = parse(dateString, "YYYY-'W'ww", new Date(), {
+        useAdditionalWeekYearTokens: true,
+      });
+      date = setDay(date, 0);
+      scope = SerializedScopeTypes.Week;
+    }
+
+    logs[dateString] = logs[dateString] || { date, scope };
+    if (fileName.match(/processed\.by-app/)) {
+      logs[dateString].appPath = file;
+    } else if (fileName.match(/processed\.chronological/)) {
+      logs[dateString].chronoPath = file;
+    } else if (fileName.match(/\.aisummary/)) {
+      logs[dateString].summaryContents = await fs.readFile(file, "utf-8");
+    } else {
+      logs[dateString].rawPath = file;
+    }
+  }
+
+  return Object.values(logs);
 }
 ipcMain.handle("GET_RECENT_LOGS", getRecentLogs);
