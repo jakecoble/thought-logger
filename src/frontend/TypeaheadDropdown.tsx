@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 
 export default function TypeaheadDropdown({
     value,
@@ -9,6 +9,7 @@ export default function TypeaheadDropdown({
     onChange: (item: string) => void;
     items: string[];
 }): ReactElement {
+    const [focused, setFocused] = useState<boolean>(false);
     return (
         <div>
             <input
@@ -22,14 +23,18 @@ export default function TypeaheadDropdown({
                         onChange(items.find((item) => item.includes(value)));
                     }
                 }}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
             />
-            <ul>
-                {items
-                    .filter((item) => item.includes(value))
-                    .map((item) => (
-                        <li>{item}</li>
-                    ))}
-            </ul>
+            {focused && (
+                <ul>
+                    {items
+                        .filter((item) => item.includes(value))
+                        .map((item) => (
+                            <li>{item}</li>
+                        ))}
+                </ul>
+            )}
         </div>
     );
 }
