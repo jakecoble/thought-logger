@@ -86,7 +86,7 @@ const SummarySettings = () => {
         Summary model
       </label>
       <TypeaheadDropdown
-        initial={summaryPrefs.summaryModel}
+        value={summaryPrefs.summaryModel}
         onChange={(model) => {
           setSummaryPrefs({ ...summaryPrefs, summaryModel: model });
           window.preferences.setPreferences({

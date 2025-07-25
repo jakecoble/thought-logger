@@ -1,35 +1,31 @@
-import React, { ReactElement, useState } from "react";
-
-function getFirstMatch(haystack: string[], needle: string): string {
-    return w;
-}
+import React, { ReactElement } from "react";
 
 export default function TypeaheadDropdown({
-    initial,
+    value,
     onChange,
     items,
 }: {
-    initial: string;
+    value: string;
     onChange: (item: string) => void;
     items: string[];
 }): ReactElement {
-    const [input, setInput] = useState<string>(initial);
     return (
         <div>
             <input
-                value={input}
+                value={value}
                 onChange={(e) => {
-                    setInput(e.currentTarget.value);
-                    onChange(
-                        items.find((item) =>
-                            item.includes(e.currentTarget.value),
-                        ),
-                    );
+                    onChange(e.currentTarget.value);
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === "Tab") {
+                        e.preventDefault();
+                        onChange(items.find((item) => item.includes(value)));
+                    }
                 }}
             />
             <ul>
                 {items
-                    .filter((item) => item.includes(input))
+                    .filter((item) => item.includes(value))
                     .map((item) => (
                         <li>{item}</li>
                     ))}
