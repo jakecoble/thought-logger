@@ -89,7 +89,7 @@ export async function getAvailableModels(): Promise<string[]> {
   });
 
   const body = await response.json();
-  return body.data.map((model) => model.id);
+  return body.data.map((model: { id: string }) => model.id);
 }
 
 async function generateAISummary(
