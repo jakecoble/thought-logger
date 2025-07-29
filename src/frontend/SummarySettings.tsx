@@ -28,22 +28,15 @@ const SummarySettings = () => {
   }, []);
 
   return (
-    <div style={{ margin: "5px 0 5px 0" }}>
-      <h3>Summary Settings</h3>
+    <div className="p-5">
+      <h3 className="text-xl mb-2.5">Summary Settings</h3>
 
-      <label
-        htmlFor="daily-prompt"
-        style={{ display: "block", marginTop: "5px" }}
-      >
+      <label htmlFor="daily-prompt" className="block text-lg my-2.5">
         Daily Summary prompt
       </label>
       <textarea
         id="daily-prompt"
-        style={{
-          width: "100%",
-          padding: "5px",
-          outline: "2px solid lightblue",
-        }}
+        className="block mb-2.5 p-2 border-2 rounded w-full"
         onChange={(e) => {
           setSummaryPrefs({
             ...summaryPrefs,
@@ -56,20 +49,13 @@ const SummarySettings = () => {
         value={summaryPrefs.dailySummaryPrompt}
       />
 
-      <label
-        htmlFor="weekly-prompt"
-        style={{ display: "block", marginTop: "5px" }}
-      >
+      <label htmlFor="weekly-prompt" className="block text-lg my-2.5">
         Weekly Summary prompt
       </label>
 
       <textarea
         id="weekly-prompt"
-        style={{
-          width: "100%",
-          padding: "5px",
-          outline: "2px solid lightblue",
-        }}
+        className="block mb-2.5 p-2 border-2 rounded w-full"
         onChange={(e) => {
           setSummaryPrefs({
             ...summaryPrefs,
@@ -82,7 +68,7 @@ const SummarySettings = () => {
         value={summaryPrefs.weeklySummaryPrompt}
       />
 
-      <label htmlFor="summary-model" style={{ display: "block" }}>
+      <label htmlFor="summary-model" className="block text-lg my-2.5">
         Summary model
       </label>
       <TypeaheadDropdown

@@ -51,10 +51,10 @@ const ApiKeySettings = () => {
   };
 
   return (
-    <div>
-      <h3>OpenRouter API Key</h3>
+    <div className="p-5">
+      <h3 className="text-xl mb-2.5">OpenRouter API Key</h3>
 
-      <div style={{ marginBottom: 12 }}>
+      <div>
         {keyStatus && (
           <div style={{ color: keyStatus.hasKey ? "#0a0" : "#a00" }}>
             {keyStatus.message}
@@ -62,9 +62,10 @@ const ApiKeySettings = () => {
         )}
       </div>
 
-      <div style={{ marginBottom: 16 }}>
+      <div>
         <input
           type="password"
+          className="w-12 border-2 rounded p-1"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
           placeholder="Enter OpenRouter API key"
@@ -73,7 +74,7 @@ const ApiKeySettings = () => {
         <button
           onClick={saveApiKey}
           disabled={isSaving}
-          style={{ marginLeft: 8 }}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5"
         >
           {isSaving ? "Saving..." : "Save"}
         </button>
@@ -85,21 +86,19 @@ const ApiKeySettings = () => {
         </div>
       )}
 
-      <div style={{ fontSize: 12, marginTop: 12 }}>
-        <em>
-          OpenRouter API key is required for text extraction from screenshots.
-          Get your API key at{" "}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              window.userData.openExternalUrl("https://openrouter.ai/keys");
-            }}
-            style={{ color: "blue", textDecoration: "none", cursor: "pointer" }}
-          >
-            openrouter.ai/keys
-          </a>
-        </em>
+      <div className="italic text-sm">
+        OpenRouter API key is required for text extraction from screenshots. Get
+        your API key at{" "}
+        <a
+          className="text-blue-600"
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            window.userData.openExternalUrl("https://openrouter.ai/keys");
+          }}
+        >
+          openrouter.ai/keys
+        </a>
       </div>
     </div>
   );

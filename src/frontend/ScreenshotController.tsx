@@ -21,47 +21,47 @@ export function ScreenshotController() {
   };
 
   return (
-    <div>
-      <h3>Screenshots</h3>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto",
-          gap: "0.5rem",
-          alignItems: "center",
-          marginTop: "1rem",
-        }}
-      >
-        <label>Automatic screenshots:</label>
-        <input
-          type="checkbox"
-          checked={prefs.screenshotActive}
-          onChange={(event) =>
-            updatePreferences({ screenshotActive: event.currentTarget.checked })
-          }
-        />
-        <label>Screenshot quality (0–100):</label>
-        <input
-          type="text"
-          value={prefs.screenshotQuality}
-          onChange={(event) =>
-            updatePreferences({
-              screenshotQuality: Number(event.currentTarget.value),
-            })
-          }
-          style={{ width: "6.25rem" }}
-        />
-        <label>Interval between screenshots (seconds):</label>
-        <input
-          type="text"
-          value={prefs.screenshotPeriod}
-          onChange={(event) =>
-            updatePreferences({
-              screenshotPeriod: Number(event.currentTarget.value),
-            })
-          }
-          style={{ width: "6.25rem" }}
-        />
+    <div className="p-5">
+      <h3 className="text-xl mb-2.5">Screenshots</h3>
+      <div className="inline-flex flex-col w-fit gap-y-2.5">
+        <div className="inline-flex justify-between">
+          <label>Automatic screenshots:</label>
+          <input
+            type="checkbox"
+            checked={prefs.screenshotActive}
+            onChange={(event) =>
+              updatePreferences({
+                screenshotActive: event.currentTarget.checked,
+              })
+            }
+          />
+        </div>
+        <div className="inline-flex justify-between space-x-4">
+          <label>Screenshot quality (0–100):</label>
+          <input
+            className="w-12 text-right border-2 rounded p-1"
+            type="text"
+            value={prefs.screenshotQuality}
+            onChange={(event) =>
+              updatePreferences({
+                screenshotQuality: Number(event.currentTarget.value),
+              })
+            }
+          />
+        </div>
+        <div className="inline-flex justify-between space-x-4">
+          <label>Interval between screenshots (seconds):</label>
+          <input
+            className="w-12 text-right border-2"
+            type="text"
+            value={prefs.screenshotPeriod}
+            onChange={(event) =>
+              updatePreferences({
+                screenshotPeriod: Number(event.currentTarget.value),
+              })
+            }
+          />
+        </div>
       </div>
     </div>
   );
