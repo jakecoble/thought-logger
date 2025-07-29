@@ -2,9 +2,15 @@ import React, { useEffect, useState } from "react";
 
 const ApiKeySettings = () => {
   const [apiKey, setApiKey] = useState<string>("");
-  const [keyStatus, setKeyStatus] = useState<{hasKey: boolean, message: string} | null>(null);
+  const [keyStatus, setKeyStatus] = useState<{
+    hasKey: boolean;
+    message: string;
+  } | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [message, setMessage] = useState<{text: string, isError: boolean} | null>(null);
+  const [message, setMessage] = useState<{
+    text: string;
+    isError: boolean;
+  } | null>(null);
 
   useEffect(() => {
     checkApiKey();
@@ -26,7 +32,7 @@ const ApiKeySettings = () => {
 
     try {
       const result = await window.openRouter.saveApiKey(apiKey);
-      
+
       if (result.success) {
         setMessage({ text: result.message, isError: false });
         setApiKey("");
@@ -35,7 +41,10 @@ const ApiKeySettings = () => {
         setMessage({ text: result.message, isError: true });
       }
     } catch (error) {
-      setMessage({ text: "An error occurred while saving the API key", isError: true });
+      setMessage({
+        text: "An error occurred while saving the API key",
+        isError: true,
+      });
     } finally {
       setIsSaving(false);
     }
@@ -44,7 +53,7 @@ const ApiKeySettings = () => {
   return (
     <div>
       <h3>OpenRouter API Key</h3>
-      
+
       <div style={{ marginBottom: 12 }}>
         {keyStatus && (
           <div style={{ color: keyStatus.hasKey ? "#0a0" : "#a00" }}>
@@ -52,7 +61,7 @@ const ApiKeySettings = () => {
           </div>
         )}
       </div>
-      
+
       <div style={{ marginBottom: 16 }}>
         <input
           type="password"
@@ -61,36 +70,39 @@ const ApiKeySettings = () => {
           placeholder="Enter OpenRouter API key"
           style={{ width: "300px" }}
         />
-        <button 
-          onClick={saveApiKey} 
+        <button
+          onClick={saveApiKey}
           disabled={isSaving}
           style={{ marginLeft: 8 }}
         >
           {isSaving ? "Saving..." : "Save"}
         </button>
       </div>
-      
+
       {message && (
         <div style={{ color: message.isError ? "#a00" : "#0a0" }}>
           {message.text}
         </div>
       )}
-      
+
       <div style={{ fontSize: 12, marginTop: 12 }}>
         <em>
           OpenRouter API key is required for text extraction from screenshots.
-          Get your API key at <a 
-            href="#" 
+          Get your API key at{" "}
+          <a
+            href="#"
             onClick={(e) => {
               e.preventDefault();
               window.userData.openExternalUrl("https://openrouter.ai/keys");
             }}
             style={{ color: "blue", textDecoration: "none", cursor: "pointer" }}
-          >openrouter.ai/keys</a>
+          >
+            openrouter.ai/keys
+          </a>
         </em>
       </div>
     </div>
   );
 };
 
-export default ApiKeySettings; 
+export default ApiKeySettings;

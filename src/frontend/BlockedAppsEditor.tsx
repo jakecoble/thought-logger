@@ -15,7 +15,7 @@ const BlockedAppsEditor = () => {
       const updatedApps = [...blockedApps, newApp.trim()];
       setBlockedApps(updatedApps);
       await window.preferences.setPreferences({ blockedApps: updatedApps });
-      
+
       setNewApp("");
     }
   };
@@ -31,16 +31,22 @@ const BlockedAppsEditor = () => {
       <h3>Blocked Apps</h3>
       <table style={{ borderCollapse: "collapse", marginBottom: 16 }}>
         <tbody>
-          {blockedApps.sort().reverse().map((app) => (
-            <tr key={app}>
-              <td>{app}</td>
-              <td style={{ textAlign: "right" }}>
-                <button onClick={() => removeApp(app)} style={{ marginLeft: 8 }}>
-                  Remove
-                </button>
-              </td>
-            </tr>
-          ))}
+          {blockedApps
+            .sort()
+            .reverse()
+            .map((app) => (
+              <tr key={app}>
+                <td>{app}</td>
+                <td style={{ textAlign: "right" }}>
+                  <button
+                    onClick={() => removeApp(app)}
+                    style={{ marginLeft: 8 }}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
       <input
@@ -56,4 +62,4 @@ const BlockedAppsEditor = () => {
   );
 };
 
-export default BlockedAppsEditor; 
+export default BlockedAppsEditor;
