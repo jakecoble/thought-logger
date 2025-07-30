@@ -21,8 +21,7 @@ const getFormattedFile = (content: string): string => {
   return paragraphs.join("\n\n");
 };
 
-export default function Summary({ log }: { log: SerializedLog }): ReactElement {
-  const date = log.date;
+function formatDateHeader(date: Date, weekly: boolean = false) {
   const weekStart = startOfWeek(date);
   const weekEnd = endOfWeek(date);
   const weekStartStr = weekStart.toLocaleDateString("en-US", {
@@ -43,14 +42,18 @@ export default function Summary({ log }: { log: SerializedLog }): ReactElement {
     month: "long",
     year: "numeric",
   });
+
+  return weekly ? `Week of ${weekStartStr} to ${weekEndStr}` : dayDateStr;
+}
+
+export default function Summary({ log }: { log: SerializedLog }): ReactElement {
+  const date = log.date;
   const dateStr = format(date, "yyyy-MM-dd");
   return (
     <div key={dateStr} className="mb-2.5" id={`day-${dateStr}`}>
       <div className="mb-1 font-bold flex items-center">
         <span className="mr-auto">
-          {log.scope === SerializedScopeTypes.Week
-            ? `Week of ${weekStartStr} to ${weekEndStr}`
-            : dayDateStr}
+          {formatDateHeader(date, log.scope === SerializedScopeTypes.Week)}
         </span>
         <button
           className={
