@@ -34,8 +34,14 @@ export default function Summary({ log }: { log: SerializedLog }): ReactElement {
           })}
         </span>
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5 text-xs"
+          className={
+            (log.loading
+              ? "bg-gray-300 opacity-50 cursor-not-allowed "
+              : "bg-blue-500 hover:bg-blue-700 ") +
+            "text-white font-bold rounded ml-2 px-2 py-0.5 text-xs"
+          }
           onClick={() => window.userData.generateAISummary(log)}
+          disabled={log.loading}
         >
           regenerate summary
         </button>
@@ -70,13 +76,14 @@ export default function Summary({ log }: { log: SerializedLog }): ReactElement {
           </button>
         )}
       </div>
-      {log.summaryContents && (
-        <div className="flex flex-col gap-1">
-          <div className="whitespace-pre-wrap bg-gray-100 p-3 rounded text-sm">
-            {getFormattedFile(log.summaryContents)}
-          </div>
+      <div className="flex flex-col gap-1">
+        <div className="whitespace-pre-wrap bg-gray-100 p-3 rounded text-sm">
+          {log.loading && "Generating a summary..."}
+          {log.summaryContents &&
+            !log.loading &&
+            getFormattedFile(log.summaryContents)}
         </div>
-      )}
+      </div>
     </div>
   );
 }

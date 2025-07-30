@@ -14,6 +14,7 @@ declare global {
     openExternalUrl: (url: string) => void;
     readFile: (filePath: string) => Promise<string>;
     generateAISummary: (log: SerializedLog) => Promise<string>;
+    onUpdateRecentLogs: (callback: (logs: SerializedLog[]) => void) => void;
   }
 
   interface Window {

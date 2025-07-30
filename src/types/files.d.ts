@@ -11,4 +11,5 @@ export interface SerializedLog {
   chronoPath?: string;
   date: Date;
   scope: SerializedScopeTypes;
+  loading: boolean;
 }

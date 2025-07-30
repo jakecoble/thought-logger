@@ -17,7 +17,7 @@ import {
   rebuildSummary,
 } from "./electron/summarizer";
 import { SerializedLog, SerializedScopeTypes } from "./types/files.d";
-import { parse, setDay, setDefaultOptions } from "date-fns";
+import { parse, setDay, setDefaultOptions, isEqual } from "date-fns";
 setDefaultOptions({ weekStartsOn: 1 });
 
 const userDataPath = app.getPath("userData");
@@ -197,8 +197,24 @@ ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
 });
 
 ipcMain.handle("GENERATE_AI_SUMMARY", async (_event, log: SerializedLog) => {
+  const oldLogs = await getRecentLogs();
+  for (let i in oldLogs) {
+    const { date, scope } = oldLogs[i];
+    if (isEqual(date, log.date) && scope === log.scope) {
+      oldLogs[i].loading = true;
+    }
+  }
+  updateRecentLogs(oldLogs);
   await rebuildSummary(log);
+  const newLogs = await getRecentLogs();
+  updateRecentLogs(newLogs);
 });
+
+function updateRecentLogs(logs: SerializedLog[]): void {
+  BrowserWindow.getAllWindows().forEach((win) =>
+    win.webContents.send("UPDATE_RECENT_LOGS", logs),
+  );
+}
 
 async function getRecentLogs(): Promise<SerializedLog[]> {
   const files = await recentFiles();
@@ -218,7 +234,7 @@ async function getRecentLogs(): Promise<SerializedLog[]> {
       scope = SerializedScopeTypes.Week;
     }
 
-    logs[dateString] = logs[dateString] || { date, scope };
+    logs[dateString] = logs[dateString] || { date, scope, loading: false };
     if (fileName.match(/processed\.by-app/)) {
       logs[dateString].appPath = file;
     } else if (fileName.match(/processed\.chronological/)) {
