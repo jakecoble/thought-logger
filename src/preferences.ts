@@ -4,6 +4,7 @@ export interface ScreenshotPreferences {
   screenshotQuality: number;
   screenshotTemporary: boolean;
   screenshotModel: string;
+  screenshotPrompt: string;
 }
 
 export interface SummaryPreferences {
@@ -22,6 +23,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   screenshotQuality: 35,
   screenshotTemporary: false,
   screenshotModel: "google/gemini-2.5-flash",
+  screenshotPrompt:
+    "Summarize the contents of this screenshot. Include the application is in use, project names, filename or document title. If a chat app is in use, give the channel name. Include each section of the screen with text in it, with an exact copy of all text. Include a summary of images on the screen. Organize the summary into titled sections.",
   blockedApps: [
     "Signal",
     "Signal Desktop",

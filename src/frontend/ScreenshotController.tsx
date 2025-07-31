@@ -92,6 +92,23 @@ export function ScreenshotController() {
           />
         </div>
       </div>
+      <label htmlFor="screenshot-prompt" className="block my-2.5">
+        Screenshot Summary Prompt
+      </label>
+      <textarea
+        id="screenshot-prompt"
+        className="block mb-2.5 p-2 border-2 rounded w-full"
+        onChange={(e) => {
+          setPrefs({
+            ...prefs,
+            screenshotPrompt: e.target.value,
+          });
+          window.preferences.setPreferences({
+            screenshotPrompt: e.target.value,
+          });
+        }}
+        value={prefs.screenshotPrompt}
+      />
     </div>
   );
 }

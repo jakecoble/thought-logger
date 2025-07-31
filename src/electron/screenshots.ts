@@ -75,6 +75,7 @@ async function saveApiKey(apiKey: string): Promise<void> {
 async function extractTextFromImage(
   imageBuffer: Buffer,
   model: string,
+  prompt: string,
 ): Promise<ScreenshotText> {
   const base64Image = imageBuffer.toString("base64");
   const imageUrl = `data:image/jpeg;base64,${base64Image}`;
@@ -102,7 +103,7 @@ async function extractTextFromImage(
               content: [
                 {
                   type: "text",
-                  text: "Summarize the contents of this screenshot. Include the application is in use, project names, filename or document title. If a chat app is in use, give the channel name. Include each section of the screen with text in it, with an exact copy of all text. Include a summary of images on the screen. Organize the summary into titled sections.",
+                  text: prompt,
                 },
                 {
                   type: "image_url",
@@ -145,8 +146,12 @@ async function extractTextFromImage(
 
 export async function saveScreenshot(img: Buffer): Promise<void> {
   // Extract and save text
-  const { screenshotModel } = await loadPreferences();
-  const extractedText = await extractTextFromImage(img, screenshotModel);
+  const { screenshotModel, screenshotPrompt } = await loadPreferences();
+  const extractedText = await extractTextFromImage(
+    img,
+    screenshotModel,
+    screenshotPrompt,
+  );
   const { project, document } = extractedText;
   const filePath = currentScreenshotFile();
   const textFilePath = filePath.replace(".jpg", `.${project}.${document}.txt`);
