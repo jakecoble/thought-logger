@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { DEFAULT_PREFERENCES, ScreenshotPreferences } from "../preferences";
+import TypeaheadDropdown from "./TypeaheadDropdown";
 
 export function ScreenshotController() {
   const [prefs, setPrefs] =
     useState<ScreenshotPreferences>(DEFAULT_PREFERENCES);
+  const [availableModels, setAvailableModels] = useState<string[]>([
+    "loading...", // FIXME
+  ]);
 
   useEffect(() => {
     window.preferences.getPreferences().then((prefs) => setPrefs(prefs));
+    window.openRouter
+      .getAvailableModels(true)
+      .then((models) => setAvailableModels(models));
   }, []);
 
   const updatePreferences = async (
@@ -69,6 +76,19 @@ export function ScreenshotController() {
                 screenshotPeriod: Number(event.currentTarget.value),
               })
             }
+          />
+        </div>
+        <div className="inline-flex justify-between space-x-4">
+          <label>Text Extraction Model:</label>
+          <TypeaheadDropdown
+            value={prefs.screenshotModel}
+            onChange={(model) => {
+              setPrefs({ ...prefs, screenshotModel: model });
+              window.preferences.setPreferences({
+                screenshotModel: model,
+              });
+            }}
+            items={availableModels}
           />
         </div>
       </div>

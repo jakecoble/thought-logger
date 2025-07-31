@@ -74,6 +74,7 @@ async function saveApiKey(apiKey: string): Promise<void> {
 
 async function extractTextFromImage(
   imageBuffer: Buffer,
+  model: string,
 ): Promise<ScreenshotText> {
   const base64Image = imageBuffer.toString("base64");
   const imageUrl = `data:image/jpeg;base64,${base64Image}`;
@@ -93,7 +94,7 @@ async function extractTextFromImage(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: model,
           require_parameters: true,
           messages: [
             {
@@ -144,7 +145,8 @@ async function extractTextFromImage(
 
 export async function saveScreenshot(img: Buffer): Promise<void> {
   // Extract and save text
-  const extractedText = await extractTextFromImage(img);
+  const { screenshotModel } = await loadPreferences();
+  const extractedText = await extractTextFromImage(img, screenshotModel);
   const { project, document } = extractedText;
   const filePath = currentScreenshotFile();
   const textFilePath = filePath.replace(".jpg", `.${project}.${document}.txt`);

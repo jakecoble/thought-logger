@@ -186,7 +186,9 @@ ipcMain.handle("SAVE_API_KEY", (_event, apiKey: string) => {
   return saveOpenRouterApiKey(apiKey);
 });
 
-ipcMain.handle("GET_AVAILABLE_MODELS", () => getAvailableModels());
+ipcMain.handle("GET_AVAILABLE_MODELS", (_event, imageSupport) =>
+  getAvailableModels(imageSupport),
+);
 
 ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
   try {

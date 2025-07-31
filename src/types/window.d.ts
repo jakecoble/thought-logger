@@ -33,7 +33,7 @@ declare global {
       saveApiKey: (
         apiKey: string,
       ) => Promise<{ success: boolean; message: string }>;
-      getAvailableModels: () => Promise<string[]>;
+      getAvailableModels: (imageSupport: boolean = false) => Promise<string[]>;
     };
   }
 }
