@@ -7,6 +7,7 @@ import { desktopCapturer, app } from "electron";
 import fetch from "node-fetch";
 import { loadPreferences } from "../main";
 import { z } from "zod";
+import { getCurrentApplication } from "../keylogger";
 
 const ScreenshotText = z.object({
   project: z
@@ -144,13 +145,18 @@ async function extractTextFromImage(
   }
 }
 
-export async function saveScreenshot(img: Buffer): Promise<void> {
+export async function saveScreenshot(
+  img: Buffer,
+  currentApplication: string,
+): Promise<void> {
   // Extract and save text
   const { screenshotModel, screenshotPrompt } = await loadPreferences();
+  const prompt =
+    screenshotPrompt[currentApplication] || screenshotPrompt.default;
   const extractedText = await extractTextFromImage(
     img,
     screenshotModel,
-    screenshotPrompt,
+    prompt,
   );
   const { project, document } = extractedText;
   const filePath = currentScreenshotFile();
@@ -179,7 +185,8 @@ async function takeScreenshot(quality: number) {
     thumbnailSize: { width: 1920, height: 1080 },
   });
   const img = sources[0].thumbnail.toJPEG(quality);
-  await saveScreenshot(img);
+  const currentApplication = getCurrentApplication();
+  await saveScreenshot(img, currentApplication);
 }
 
 let screenshotIntervalID: ReturnType<typeof setInterval> | null = null;

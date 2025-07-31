@@ -5,6 +5,10 @@ import TypeaheadDropdown from "./TypeaheadDropdown";
 export function ScreenshotController() {
   const [prefs, setPrefs] =
     useState<ScreenshotPreferences>(DEFAULT_PREFERENCES);
+  const [newPrompt, setNewPrompt] = useState<{ app: string; prompt: string }>({
+    app: "",
+    prompt: "",
+  });
   const [availableModels, setAvailableModels] = useState<string[]>([
     "loading...", // FIXME
   ]);
@@ -22,6 +26,32 @@ export function ScreenshotController() {
     const updatedPrefs = { ...prefs, ...newPrefs };
     setPrefs(updatedPrefs);
     await window.preferences.setPreferences(newPrefs);
+  };
+
+  const removePrompt = (app: string) => {
+    if (app === "default") return;
+    const { [app]: _, ...newPrompts } = prefs.screenshotPrompt;
+    updatePreferences({
+      screenshotPrompt: {
+        // Typescript complains if the "default" key is not explicitly
+        // included
+        default: prefs.screenshotPrompt.default,
+        ...newPrompts,
+      },
+    });
+  };
+
+  const addPrompt = () => {
+    console.log("new Prompt", newPrompt);
+    if (newPrompt.app && newPrompt.prompt) {
+      console.log("adding ", newPrompt);
+      updatePreferences({
+        screenshotPrompt: {
+          ...prefs.screenshotPrompt,
+          [newPrompt.app]: newPrompt.prompt,
+        },
+      });
+    }
   };
 
   return (
@@ -92,23 +122,46 @@ export function ScreenshotController() {
           />
         </div>
       </div>
-      <label htmlFor="screenshot-prompt" className="block my-2.5">
-        Screenshot Summary Prompt
-      </label>
-      <textarea
-        id="screenshot-prompt"
-        className="block mb-2.5 p-2 border-2 rounded w-full"
-        onChange={(e) => {
-          setPrefs({
-            ...prefs,
-            screenshotPrompt: e.target.value,
-          });
-          window.preferences.setPreferences({
-            screenshotPrompt: e.target.value,
-          });
-        }}
-        value={prefs.screenshotPrompt}
+
+      <h3>Screenshot Summary Prompts</h3>
+      <table className="border-collapse mb-2">
+        <tbody>
+          {Object.keys(prefs.screenshotPrompt).map((app) => (
+            <tr key={app}>
+              <td>{app}</td>
+              <td>{prefs.screenshotPrompt[app]}</td>
+              <td style={{ textAlign: "right" }}>
+                <button
+                  className="border-2 border-red-400 hover:bg-red-400 hover:text-white text-red-400 font-bold rounded ml-2 px-2 py-0.5 text-sm"
+                  onClick={() => removePrompt(app)}
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <input
+        type="text"
+        value={newPrompt.app}
+        onChange={(e) => setNewPrompt({ ...newPrompt, app: e.target.value })}
+        className="mb-2.5 p-2 border-2 rounded"
+        placeholder="Application"
       />
+      <input
+        type="text"
+        value={newPrompt.prompt}
+        onChange={(e) => setNewPrompt({ ...newPrompt, prompt: e.target.value })}
+        className="mb-2.5 p-2 border-2 rounded"
+        placeholder="Custom prompt"
+      />
+      <button
+        onClick={() => addPrompt()}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5"
+      >
+        Add
+      </button>
     </div>
   );
 }
