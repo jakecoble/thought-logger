@@ -30,5 +30,6 @@ contextBridge.exposeInMainWorld("preferences", {
 contextBridge.exposeInMainWorld("openRouter", {
   checkApiKey: () => ipcRenderer.invoke("CHECK_API_KEY"),
   saveApiKey: (apiKey: string) => ipcRenderer.invoke("SAVE_API_KEY", apiKey),
-  getAvailableModels: () => ipcRenderer.invoke("GET_AVAILABLE_MODELS"),
+  getAvailableModels: (imageSupport: boolean = false) =>
+    ipcRenderer.invoke("GET_AVAILABLE_MODELS", imageSupport),
 });

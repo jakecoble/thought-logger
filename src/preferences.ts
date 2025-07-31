@@ -3,6 +3,7 @@ export interface ScreenshotPreferences {
   screenshotPeriod: number;
   screenshotQuality: number;
   screenshotTemporary: boolean;
+  screenshotModel: string;
 }
 
 export interface SummaryPreferences {
@@ -20,6 +21,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   screenshotPeriod: 60 * 4,
   screenshotQuality: 35,
   screenshotTemporary: false,
+  screenshotModel: "google/gemini-2.5-flash",
   blockedApps: [
     "Signal",
     "Signal Desktop",
