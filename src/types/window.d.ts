@@ -10,6 +10,7 @@ declare global {
     openUserDataFolder: () => void;
     getUserDataFolder: () => Promise<string>;
     getRecentLogs: () => Promise<SerializedLog[]>;
+    getRecentApps: () => Promise<string[]>;
     openFile: (filePath: string) => void;
     openExternalUrl: (url: string) => void;
     readFile: (filePath: string) => Promise<string>;

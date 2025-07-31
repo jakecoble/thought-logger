@@ -35,15 +35,14 @@ export async function loadPreferences(): Promise<Preferences> {
   }
 }
 
-export async function recentFiles(): Promise<string[]> {
+const TWO_WEEKS_IN_SECONDS = 60 * 60 * 24 * 7;
+
+export async function recentFiles(
+  ageInSeconds: number = TWO_WEEKS_IN_SECONDS,
+): Promise<string[]> {
   const userDataPath = app.getPath("userData");
   const filesDir = path.join(userDataPath, "files");
   try {
-    // For example: read the "files" directory recursively,
-    // collect file paths, sort them (newest first),
-    // and return the first N results.
-    // The specifics of listing "recent" are up to your logic:
-    // e.g., you could check subfolders, filter by extension, or sort by stat.mtime.
     const allEntries: string[] = [];
 
     await walkDir(filesDir, allEntries);
@@ -62,7 +61,10 @@ export async function recentFiles(): Promise<string[]> {
     datedPaths.sort((a, b) => b.mtime - a.mtime);
 
     // Return a limited list, e.g. 20 items
-    return datedPaths.slice(0, 20).map((x) => x.path);
+    const nowMs = Date.now();
+    return datedPaths
+      .filter((x) => nowMs - x.mtime <= ageInSeconds * 1000)
+      .map((x) => x.path);
   } catch (error) {
     console.error("Failed to list recent files:", error);
     return [];
@@ -265,4 +267,25 @@ async function getRecentLogs(): Promise<SerializedLog[]> {
 
   return Object.values(logs);
 }
+
 ipcMain.handle("GET_RECENT_LOGS", getRecentLogs);
+
+async function getRecentApps(): Promise<string[]> {
+  let apps = new Set<string>();
+
+  const dayOldFiles = await recentFiles(60 * 60 * 24);
+  const appFiles = dayOldFiles.filter((f) =>
+    f.includes("processed.by-app.log"),
+  );
+
+  for (let f of appFiles) {
+    const content = await fs.readFile(f);
+    const appRegex = /=== (.*) ===/g;
+    const matches = content.toLocaleString().matchAll(appRegex);
+    matches.forEach((m) => apps.add(m[1]));
+  }
+
+  return Array.from(apps);
+}
+
+ipcMain.handle("GET_RECENT_APPS", getRecentApps);

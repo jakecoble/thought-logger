@@ -16,6 +16,7 @@ const userData: UserData = {
   generateAISummary: (log: SerializedLog) =>
     ipcRenderer.invoke("GENERATE_AI_SUMMARY", log),
   getRecentLogs: () => ipcRenderer.invoke("GET_RECENT_LOGS"),
+  getRecentApps: () => ipcRenderer.invoke("GET_RECENT_APPS"),
   onUpdateRecentLogs: (callback: (logs: SerializedLog[]) => void) =>
     ipcRenderer.on("UPDATE_RECENT_LOGS", (_event, logs) => callback(logs)),
 };

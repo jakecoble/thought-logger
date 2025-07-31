@@ -12,12 +12,14 @@ export function ScreenshotController() {
   const [availableModels, setAvailableModels] = useState<string[]>([
     "loading...", // FIXME
   ]);
+  const [recentApplications, setRecentApplications] = useState<string[]>([]);
 
   useEffect(() => {
     window.preferences.getPreferences().then((prefs) => setPrefs(prefs));
     window.openRouter
       .getAvailableModels(true)
       .then((models) => setAvailableModels(models));
+    window.userData.getRecentApps().then((apps) => setRecentApplications(apps));
   }, []);
 
   const updatePreferences = async (
@@ -142,26 +144,29 @@ export function ScreenshotController() {
           ))}
         </tbody>
       </table>
-      <input
-        type="text"
-        value={newPrompt.app}
-        onChange={(e) => setNewPrompt({ ...newPrompt, app: e.target.value })}
-        className="mb-2.5 p-2 border-2 rounded"
-        placeholder="Application"
-      />
-      <input
-        type="text"
-        value={newPrompt.prompt}
-        onChange={(e) => setNewPrompt({ ...newPrompt, prompt: e.target.value })}
-        className="mb-2.5 p-2 border-2 rounded"
-        placeholder="Custom prompt"
-      />
-      <button
-        onClick={() => addPrompt()}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5"
-      >
-        Add
-      </button>
+      <div className="flex w-full gap-5">
+        <div className="self-center">
+          <TypeaheadDropdown
+            items={recentApplications}
+            value={newPrompt.app}
+            onChange={(value) => setNewPrompt({ ...newPrompt, app: value })}
+          />
+        </div>
+        <textarea
+          value={newPrompt.prompt}
+          onChange={(e) =>
+            setNewPrompt({ ...newPrompt, prompt: e.target.value })
+          }
+          className="grow p-2 border-2 rounded"
+          placeholder="Custom prompt"
+        />
+        <button
+          onClick={() => addPrompt()}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded px-2 py-0.5 self-center"
+        >
+          Add
+        </button>
+      </div>
     </div>
   );
 }
