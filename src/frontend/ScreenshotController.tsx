@@ -79,15 +79,14 @@ export function ScreenshotController() {
           />
         </div>
         <div className="inline-flex justify-between space-x-4">
-          <label>Text Extraction Model:</label>
+          <label>Screenshot Summary Model:</label>
           <TypeaheadDropdown
             value={prefs.screenshotModel}
-            onChange={(model) => {
-              setPrefs({ ...prefs, screenshotModel: model });
-              window.preferences.setPreferences({
+            onChange={(model) =>
+              updatePreferences({
                 screenshotModel: model,
-              });
-            }}
+              })
+            }
             items={availableModels}
           />
         </div>
@@ -98,15 +97,11 @@ export function ScreenshotController() {
       <textarea
         id="screenshot-prompt"
         className="block mb-2.5 p-2 border-2 rounded w-full"
-        onChange={(e) => {
-          setPrefs({
-            ...prefs,
+        onChange={(e) =>
+          updatePreferences({
             screenshotPrompt: e.target.value,
-          });
-          window.preferences.setPreferences({
-            screenshotPrompt: e.target.value,
-          });
-        }}
+          })
+        }
         value={prefs.screenshotPrompt}
       />
     </div>
