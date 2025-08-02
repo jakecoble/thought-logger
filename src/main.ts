@@ -234,6 +234,12 @@ async function getRecentLogs(): Promise<SerializedLog[]> {
       scope = SerializedScopeTypes.Week;
     }
 
+    // Skip logs if we fail to parse their date.
+    if (isNaN(date.getTime())) {
+      console.error(`Failed to parse date for ${path}`);
+      continue;
+    }
+
     logs[dateString] = logs[dateString] || { date, scope, loading: false };
     if (fileName.match(/processed\.by-app/)) {
       logs[dateString].appPath = file;
