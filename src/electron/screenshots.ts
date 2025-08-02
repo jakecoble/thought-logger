@@ -180,13 +180,17 @@ export async function saveScreenshot(
 }
 
 async function takeScreenshot(quality: number) {
-  const sources = await desktopCapturer.getSources({
-    types: ["screen"],
-    thumbnailSize: { width: 1920, height: 1080 },
-  });
-  const img = sources[0].thumbnail.toJPEG(quality);
-  const currentApplication = getCurrentApplication();
-  await saveScreenshot(img, currentApplication);
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ["screen"],
+      thumbnailSize: { width: 1920, height: 1080 },
+    });
+    const img = sources[0].thumbnail.toJPEG(quality);
+    const currentApplication = getCurrentApplication();
+    await saveScreenshot(img, currentApplication);
+  } catch (e) {
+    console.error(`Failed to capture screenshot: ${e}`);
+  }
 }
 
 let screenshotIntervalID: ReturnType<typeof setInterval> | null = null;
