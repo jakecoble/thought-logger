@@ -1,6 +1,10 @@
 import React, { ReactElement } from "react";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, setDefaultOptions } from "date-fns";
 import { SerializedLog, SerializedScopeTypes } from "../types/files.d";
+
+setDefaultOptions({
+  weekStartsOn: 1,
+});
 
 const getFormattedFile = (content: string): string => {
   if (!content) return "Loading...";
@@ -17,6 +21,31 @@ const getFormattedFile = (content: string): string => {
   return paragraphs.join("\n\n");
 };
 
+function formatDateHeader(date: Date, weekly: boolean = false) {
+  const weekStart = startOfWeek(date);
+  const weekEnd = endOfWeek(date);
+  const weekStartStr = weekStart.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const weekEndStr = weekEnd.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const dayDateStr = date.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  return weekly ? `Week of ${weekStartStr} to ${weekEndStr}` : dayDateStr;
+}
+
 export default function Summary({ log }: { log: SerializedLog }): ReactElement {
   const date = log.date;
   const dateStr = format(date, "yyyy-MM-dd");
@@ -24,14 +53,7 @@ export default function Summary({ log }: { log: SerializedLog }): ReactElement {
     <div key={dateStr} className="mb-2.5" id={`day-${dateStr}`}>
       <div className="mb-1 font-bold flex items-center">
         <span className="mr-auto">
-          {log.scope === SerializedScopeTypes.Week && "Week of "}
-          {date.toLocaleDateString("en-US", {
-            weekday:
-              log.scope === SerializedScopeTypes.Day ? "long" : undefined,
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
+          {formatDateHeader(date, log.scope === SerializedScopeTypes.Week)}
         </span>
         <button
           className={
@@ -77,7 +99,14 @@ export default function Summary({ log }: { log: SerializedLog }): ReactElement {
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <div className="whitespace-pre-wrap bg-gray-100 p-3 rounded text-sm">
+        <div
+          className={
+            "whitespace-pre-wrap p-3 rounded text-sm " +
+            (log.scope === SerializedScopeTypes.Day
+              ? "bg-gray-100"
+              : "bg-sky-50")
+          }
+        >
           {log.loading && "Generating a summary..."}
           {log.summaryContents &&
             !log.loading &&
