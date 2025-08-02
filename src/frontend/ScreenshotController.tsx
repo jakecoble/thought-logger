@@ -12,7 +12,9 @@ export function ScreenshotController() {
     window.preferences.getPreferences().then(setPrefs);
   }, []);
 
-  const updatePreferences = async (newPrefs: Partial<ScreenshotPreferences>) => {
+  const updatePreferences = async (
+    newPrefs: Partial<ScreenshotPreferences>,
+  ) => {
     const updatedPrefs = { ...prefs, ...newPrefs };
     setPrefs(updatedPrefs);
     await window.preferences.setPreferences(newPrefs);
