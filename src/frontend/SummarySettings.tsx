@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import Dropdown from "react-dropdown";
 
 import { SummaryPreferences, DEFAULT_PREFERENCES } from "../preferences";
+import TypeaheadDropdown from "./TypeaheadDropdown";
 
 const SummarySettings = () => {
   const [summaryPrefs, setSummaryPrefs] = useState<SummaryPreferences>({
@@ -85,12 +85,15 @@ const SummarySettings = () => {
       <label htmlFor="summary-model" style={{ display: "block" }}>
         Summary model
       </label>
-      <Dropdown
-        onChange={(option) =>
-          setSummaryPrefs({ ...summaryPrefs, summaryModel: option.value })
-        }
-        options={availableModels}
+      <TypeaheadDropdown
         value={summaryPrefs.summaryModel}
+        onChange={(model) => {
+          setSummaryPrefs({ ...summaryPrefs, summaryModel: model });
+          window.preferences.setPreferences({
+            summaryModel: model,
+          });
+        }}
+        items={availableModels}
       />
     </div>
   );
