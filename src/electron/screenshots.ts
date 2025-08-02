@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { currentScreenshotFile } from "./paths";
 import { Preferences } from "../preferences";
-import { desktopCapturer, app } from "electron";
+import { desktopCapturer, app, systemPreferences } from "electron";
 
 import fetch from "node-fetch";
 import { loadPreferences } from "../main";
@@ -181,6 +181,9 @@ export async function saveScreenshot(
 
 async function takeScreenshot(quality: number) {
   try {
+    if (systemPreferences.getMediaAccessStatus("screen")) {
+      throw "Thought Logger does not have permission to capture the screen.";
+    }
     const sources = await desktopCapturer.getSources({
       types: ["screen"],
       thumbnailSize: { width: 1920, height: 1080 },
