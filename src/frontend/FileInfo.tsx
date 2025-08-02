@@ -15,6 +15,7 @@ export function FileInfo() {
   useEffect(() => {
     window.userData.getUserDataFolder().then(setDataFolder);
     window.userData.getRecentLogs().then(setSerializedLogs);
+    window.userData.onUpdateRecentLogs((logs) => setSerializedLogs(logs));
   }, []);
 
   // FIXME Probably doesn't need to happen every render
