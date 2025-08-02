@@ -27,8 +27,8 @@ const BlockedAppsEditor = () => {
   };
 
   return (
-    <div>
-      <h3>Blocked Apps</h3>
+    <div className="p-5">
+      <h3 className="text-xl mb-2.5">Blocked Apps</h3>
       <table style={{ borderCollapse: "collapse", marginBottom: 16 }}>
         <tbody>
           {blockedApps
@@ -39,8 +39,8 @@ const BlockedAppsEditor = () => {
                 <td>{app}</td>
                 <td style={{ textAlign: "right" }}>
                   <button
+                    className="border-2 border-red-400 hover:bg-red-400 hover:text-white text-red-400 font-bold rounded ml-2 px-2 py-0.5 text-sm"
                     onClick={() => removeApp(app)}
-                    style={{ marginLeft: 8 }}
                   >
                     Remove
                   </button>
@@ -53,9 +53,13 @@ const BlockedAppsEditor = () => {
         type="text"
         value={newApp}
         onChange={(e) => setNewApp(e.target.value)}
+        className="mb-2.5 p-2 border-2 rounded"
         placeholder="Add new app"
       />
-      <button onClick={addApp} style={{ marginLeft: 8 }}>
+      <button
+        onClick={addApp}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded ml-2 px-2 py-0.5"
+      >
         Add
       </button>
     </div>

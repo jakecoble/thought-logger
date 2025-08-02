@@ -11,8 +11,9 @@ export default function TypeaheadDropdown({
 }): ReactElement {
     const [focused, setFocused] = useState<boolean>(false);
     return (
-        <div>
+        <div className="inline-block relative w-fit">
             <input
+                className="border-2 rounded p-2"
                 value={value}
                 onChange={(e) => {
                     onChange(e.currentTarget.value);
@@ -27,11 +28,13 @@ export default function TypeaheadDropdown({
                 onBlur={() => setFocused(false)}
             />
             {focused && (
-                <ul>
+                <ul className="absolute left-0 bg-slate-50 border-2 rounded w-full">
                     {items
                         .filter((item) => item.includes(value))
                         .map((item) => (
-                            <li>{item}</li>
+                            <li className="p-2 first:bg-sky-200 w-full">
+                                {item}
+                            </li>
                         ))}
                 </ul>
             )}
