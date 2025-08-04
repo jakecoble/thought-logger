@@ -147,37 +147,28 @@ async function extractTextFromImage(
   }
 }
 
-export async function saveScreenshot(
+export async function parseScreenshot(
   img: Buffer,
+  imgPath: string,
   currentApplication: string,
 ): Promise<void> {
   // Extract and save text
   const { screenshotModel, screenshotPrompt } = await loadPreferences();
   const prompt =
     screenshotPrompt[currentApplication] || screenshotPrompt.default;
-  const extractedText = await extractTextFromImage(
-    img,
-    screenshotModel,
-    prompt,
-  );
-  const { project, document } = extractedText;
-  const filePath = currentScreenshotFile();
-  const textFilePath = filePath.replace(".jpg", `.${project}.${document}.txt`);
 
   try {
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, img);
+    const extractedText = await extractTextFromImage(
+      img,
+      screenshotModel,
+      prompt,
+    );
+    const { project, document } = extractedText;
+    const textFilePath = imgPath.replace(".jpg", `.${project}.${document}.txt`);
 
     await fs.writeFile(textFilePath, extractedText.summary);
-
-    const { screenshotTemporary } = await loadPreferences();
-
-    if (screenshotTemporary) {
-      // Delete screenshot when we're done extracting.
-      await fs.unlink(filePath);
-    }
   } catch (error) {
-    log.error("Failed to take screenshot or extract text:", error);
+    log.error(`Failed to extract text from ${imgPath}:`, error);
   }
 }
 
@@ -192,9 +183,20 @@ async function takeScreenshot(quality: number) {
     });
     const img = sources[0].thumbnail.toJPEG(quality);
     const currentApplication = getCurrentApplication();
-    await saveScreenshot(img, currentApplication);
+    const filePath = currentScreenshotFile();
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, img);
+
+    await parseScreenshot(img, filePath, currentApplication);
+
+    const { screenshotTemporary } = await loadPreferences();
+
+    if (screenshotTemporary) {
+      // Delete screenshot when we're done extracting.
+      await fs.unlink(filePath);
+    }
   } catch (e) {
-    log.error(`Failed to capture screenshot: ${e}`);
+    log.error(`Failed to process screenshot: ${e}`);
   }
 }
 
