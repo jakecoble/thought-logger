@@ -248,7 +248,7 @@ async function getRecentLogs(): Promise<SerializedLog[]> {
 
     // Skip logs if we fail to parse their date.
     if (isNaN(date.getTime())) {
-      log.error(`Failed to parse date for ${path}`);
+      log.error(`Failed to parse date for ${file}`);
       continue;
     }
 
