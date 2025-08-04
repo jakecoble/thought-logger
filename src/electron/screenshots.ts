@@ -9,6 +9,8 @@ import { loadPreferences } from "../main";
 import { z } from "zod";
 import { getCurrentApplication } from "../keylogger";
 
+import log from "../logging";
+
 const ScreenshotText = z.object({
   project: z
     .string()
@@ -37,15 +39,15 @@ try {
           "Release",
           "keytar.node",
         );
-    console.log("Attempting to load keytar from:", keytarPath);
+    log.info("Attempting to load keytar from:", keytarPath);
     keytar = require(keytarPath);
   } catch (secondError) {
-    console.error("Failed to load keytar:", secondError);
+    log.error("Failed to load keytar:", secondError);
     // Provide a fallback implementation that logs error but doesn't crash
     keytar = {
       getPassword: async (): Promise<string | null> => null,
       setPassword: async (): Promise<void> =>
-        console.error("Unable to save password: keytar not available"),
+        log.error("Unable to save password: keytar not available"),
     };
   }
 }
@@ -59,7 +61,7 @@ async function getApiKey(): Promise<string | null> {
   try {
     return await keytar.getPassword(SERVICE_NAME, ACCOUNT_NAME);
   } catch (error) {
-    console.error("Error accessing keychain:", error);
+    log.error("Error accessing keychain:", error);
     return null;
   }
 }
@@ -69,7 +71,7 @@ async function saveApiKey(apiKey: string): Promise<void> {
   try {
     await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, apiKey);
   } catch (error) {
-    console.error("Error saving to keychain:", error);
+    log.error("Error saving to keychain:", error);
   }
 }
 
@@ -83,7 +85,7 @@ async function extractTextFromImage(
   try {
     const apiKey = await getApiKey();
     if (!apiKey) {
-      console.error("API key not found in keychain");
+      log.error("API key not found in keychain");
       throw "ERROR: OpenRouter API key is not set. Use saveOpenRouterApiKey() to set your API key.";
     }
 
@@ -140,7 +142,7 @@ async function extractTextFromImage(
     const result = JSON.parse(data.choices[0].message.content);
     return ScreenshotText.parse(result);
   } catch (error) {
-    console.error("Failed to extract text from image:", error);
+    log.error("Failed to extract text from image:", error);
     throw `ERROR: Failed to extract text: ${error.message}`;
   }
 }
@@ -175,7 +177,7 @@ export async function saveScreenshot(
       await fs.unlink(filePath);
     }
   } catch (error) {
-    console.error("Failed to take screenshot or extract text:", error);
+    log.error("Failed to take screenshot or extract text:", error);
   }
 }
 
@@ -192,7 +194,7 @@ async function takeScreenshot(quality: number) {
     const currentApplication = getCurrentApplication();
     await saveScreenshot(img, currentApplication);
   } catch (e) {
-    console.error(`Failed to capture screenshot: ${e}`);
+    log.error(`Failed to capture screenshot: ${e}`);
   }
 }
 
@@ -248,7 +250,7 @@ export async function saveOpenRouterApiKey(
       message: "API key saved successfully",
     };
   } catch (error) {
-    console.error("Failed to save API key:", error);
+    log.error("Failed to save API key:", error);
     return {
       success: false,
       message: `Failed to save API key: ${error.message}`,

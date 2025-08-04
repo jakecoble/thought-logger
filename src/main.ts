@@ -18,6 +18,7 @@ import {
 } from "./electron/summarizer";
 import { SerializedLog, SerializedScopeTypes } from "./types/files.d";
 import { parse, setDay, setDefaultOptions, isEqual } from "date-fns";
+import log from "./logging";
 setDefaultOptions({ weekStartsOn: 1 });
 
 const userDataPath = app.getPath("userData");
@@ -66,7 +67,7 @@ export async function recentFiles(
       .filter((x) => nowMs - x.mtime <= ageInSeconds * 1000)
       .map((x) => x.path);
   } catch (error) {
-    console.error("Failed to list recent files:", error);
+    log.error("Failed to list recent files:", error);
     return [];
   }
 }
@@ -176,7 +177,7 @@ ipcMain.on("OPEN_FILE", (_event, filePath) => {
 
 ipcMain.on("OPEN_EXTERNAL_URL", (_event, url) => {
   shell.openExternal(url).catch((err) => {
-    console.error("Failed to open external URL:", err);
+    log.error("Failed to open external URL:", err);
   });
 });
 
@@ -197,7 +198,7 @@ ipcMain.handle("READ_FILE", async (_event, filePath: string) => {
     const content = await fs.readFile(filePath, "utf-8");
     return content;
   } catch (error) {
-    console.error("Failed to read file:", error);
+    log.error("Failed to read file:", error);
     throw error;
   }
 });
@@ -247,7 +248,7 @@ async function getRecentLogs(): Promise<SerializedLog[]> {
 
     // Skip logs if we fail to parse their date.
     if (isNaN(date.getTime())) {
-      console.error(`Failed to parse date for ${path}`);
+      log.error(`Failed to parse date for ${path}`);
       continue;
     }
 

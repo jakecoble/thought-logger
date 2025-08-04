@@ -13,6 +13,8 @@ import {
   format,
 } from "date-fns";
 import { SerializedLog, SerializedScopeTypes } from "../types/files.d";
+import log from "../logging";
+
 setDefaultOptions({ weekStartsOn: 1 });
 
 const userDataPath = app.getPath("userData");
@@ -38,12 +40,13 @@ try {
     console.log("Attempting to load keytar from:", keytarPath);
     keytar = require(keytarPath);
   } catch (secondError) {
-    console.error("Failed to load keytar:", secondError);
+    log.error("Failed to load keytar:", secondError);
     // Provide a fallback implementation that logs error but doesn't crash
     keytar = {
       getPassword: async (): Promise<string | null> => null,
-      setPassword: async (): Promise<void> =>
-        console.error("Unable to save password: keytar not available"),
+      setPassword: async (): Promise<void> => {
+        log.error("Unable to save password: keytar not available");
+      },
     };
   }
 }
@@ -201,10 +204,7 @@ async function processLogFile(fileInfo: LogFileInfo): Promise<void> {
     rebuildChronologicalLog(fileInfo.rawPath);
     rebuildLogByApp(fileInfo.rawPath);
   } catch (error) {
-    console.error(
-      `Failed to process ${path.basename(fileInfo.rawPath)}:`,
-      error,
-    );
+    log.error(`Failed to process ${path.basename(fileInfo.rawPath)}:`, error);
     throw error; // Re-throw to handle in the calling function
   }
 }
@@ -235,7 +235,7 @@ async function generateSummary(fileInfo: LogFileInfo): Promise<void> {
     );
     await fs.writeFile(fileInfo.summaryPath, summary);
   } catch (error) {
-    console.error(
+    log.error(
       `Failed to generate summary for ${path.basename(fileInfo.rawPath)}:`,
       error,
     );
@@ -331,7 +331,7 @@ async function processMonthFolder(monthPath: string): Promise<void> {
         try {
           await processLogFile(fileInfo);
         } catch (error) {
-          console.error(`Failed to process ${logFile}:`, error);
+          log.error(`Failed to process ${logFile}:`, error);
           continue; // Continue with next file even if this one fails
         }
       }
@@ -340,12 +340,12 @@ async function processMonthFolder(monthPath: string): Promise<void> {
         try {
           await generateSummary(fileInfo);
         } catch (error) {
-          console.error(`Failed to generate summary for ${logFile}:`, error);
+          log.error(`Failed to generate summary for ${logFile}:`, error);
           continue; // Continue with next file even if this one fails
         }
       }
     } catch (error) {
-      console.error(`Error processing file ${logFile}:`, error);
+      log.error(`Error processing file ${logFile}:`, error);
       continue; // Continue with next file even if this one fails
     }
   }
@@ -368,7 +368,7 @@ async function checkAndGenerateSummaries() {
 
         await processMonthFolder(monthPath);
       } catch (error) {
-        console.error(`Failed to process month folder ${monthFolder}:`, error);
+        log.error(`Failed to process month folder ${monthFolder}:`, error);
         continue; // Continue with next month even if this one fails
       }
     }
@@ -380,7 +380,7 @@ async function checkAndGenerateSummaries() {
       await generateWeeklySummary(lastWeek);
     }
   } catch (error) {
-    console.error("Error checking and generating summaries:", error);
+    log.error("Error checking and generating summaries:", error);
     throw error; // Re-throw to handle in the calling function
   }
 }
@@ -408,6 +408,6 @@ app.whenReady().then(async () => {
     await checkAndGenerateSummaries();
     console.log("Summary generation completed successfully");
   } catch (error) {
-    console.error("Failed to generate summaries:", error);
+    log.error("Failed to generate summaries:", error);
   }
 });

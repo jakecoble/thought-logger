@@ -61,6 +61,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropdown": "^1.11.0",
+    "winston": "^3.17.0",
     "zod": "^4.0.14"
   },
   "build": {
@@ -68,9 +69,7 @@
       {
         "from": "node_modules/keytar/build/Release/",
         "to": ".",
-        "filter": [
-          "*.node"
-        ]
+        "filter": ["*.node"]
       }
     ]
   }
