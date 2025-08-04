@@ -174,9 +174,6 @@ export async function parseScreenshot(
 
 async function takeScreenshot(quality: number) {
   try {
-    if (systemPreferences.getMediaAccessStatus("screen")) {
-      throw "Thought Logger does not have permission to capture the screen.";
-    }
     const sources = await desktopCapturer.getSources({
       types: ["screen"],
       thumbnailSize: { width: 1920, height: 1080 },
